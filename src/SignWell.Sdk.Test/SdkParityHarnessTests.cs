@@ -659,10 +659,19 @@ public sealed class SdkParityHarnessTests
         await Assert.ThrowsAsync<WebhookVerificationException>(async () =>
             await WebhookVerifier.VerifyOnceOrThrowAsync(valid.RootElement, webhookId, replay, TimeSpan.FromMinutes(5), now));
 
-        var boundaryNow = now.AddMinutes(5);
+        var boundaryNow = now.AddMinutes(5).AddMilliseconds(900);
         var boundaryReplay = new InMemoryWebhookReplayStore(clock: () => boundaryNow);
         Assert.True(await WebhookVerifier.VerifyOnceAsync(valid.RootElement, webhookId, boundaryReplay, TimeSpan.FromMinutes(5), boundaryNow));
         Assert.False(await WebhookVerifier.VerifyOnceAsync(valid.RootElement, webhookId, boundaryReplay, TimeSpan.FromMinutes(5), boundaryNow));
+
+        var futureTimestamp = timestamp + 300;
+        var futureHash = Hmac(webhookId, $"document_completed@{futureTimestamp}");
+        using var future = JsonDocument.Parse($$"""{"type":"document_completed","time":{{futureTimestamp}},"hash":"{{futureHash}}"}""");
+        var futureReplayNow = now;
+        var futureReplay = new InMemoryWebhookReplayStore(clock: () => futureReplayNow);
+        Assert.True(await WebhookVerifier.VerifyOnceAsync(future.RootElement, webhookId, futureReplay, TimeSpan.FromMinutes(5), futureReplayNow));
+        futureReplayNow = now.AddMinutes(10).AddMilliseconds(900);
+        Assert.False(await WebhookVerifier.VerifyOnceAsync(future.RootElement, webhookId, futureReplay, TimeSpan.FromMinutes(5), futureReplayNow));
 
         var full = new InMemoryWebhookReplayStore(1, () => now);
         Assert.True(await full.TryAddAsync("occupied", now.AddMinutes(5)));

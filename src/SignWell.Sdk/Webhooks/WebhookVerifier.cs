@@ -98,7 +98,7 @@ public static class WebhookVerifier
         if (replayStore is null) throw new ArgumentNullException(nameof(replayStore));
         var current = now ?? DateTimeOffset.UtcNow;
         var parsed = VerifyData(eventData, webhookId, freshness, current);
-        var expiresAt = current.Add(freshness);
+        var expiresAt = ReplayExpiration(parsed.Timestamp, freshness);
         if (!await replayStore.TryAddAsync(parsed.ReplayKey, expiresAt, cancellationToken).ConfigureAwait(false))
             throw new WebhookVerificationException("Webhook event has already been processed.");
     }
@@ -128,6 +128,18 @@ public static class WebhookVerifier
         if (!ConstantTimeEquals(calculated, parsed.Hash))
             throw new WebhookVerificationException("Webhook signature is invalid.");
         return parsed;
+    }
+
+    private static DateTimeOffset ReplayExpiration(long timestamp, TimeSpan freshness)
+    {
+        try
+        {
+            return DateTimeOffset.FromUnixTimeSeconds(timestamp).Add(freshness).AddSeconds(1);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return DateTimeOffset.MaxValue;
+        }
     }
 
     private static ParsedEvent Parse(JsonElement value)
