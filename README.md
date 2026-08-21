@@ -262,6 +262,12 @@ The in-memory replay store is intended for local development and single-process
 applications. Multi-instance production applications must provide a shared,
 atomic Redis or database implementation of `IWebhookReplayStore`.
 
+SignWell v1 authenticates the event type and Unix timestamp. Replay-aware
+verification therefore fails closed when two same-type events share the same
+authenticated timestamp and hash. Reconcile the affected document through the
+API when that rare collision occurs; do not derive replay keys from unsigned
+payload fields. A future signed delivery identifier can remove this limitation.
+
 ## Examples
 
 The repository includes a package-consumption smoke project and a manual,

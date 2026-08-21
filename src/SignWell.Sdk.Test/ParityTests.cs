@@ -155,7 +155,7 @@ public sealed class ParityTests
         var handler = new CaptureHandler(content);
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://www.signwell.com") };
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Api-Key", "conflicting-default");
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", SignWellClientOptions.UserAgent);
         var transport = new ResponseModesClient(
             new SingleClientFactory(httpClient),
             new SignWellClientOptions { ApiKey = "real-key" },
@@ -165,7 +165,9 @@ public sealed class ParityTests
         Assert.False(content.WasSerialized);
         Assert.False(content.WasDisposed);
         Assert.Equal("real-key", handler.ApiKey);
-        Assert.Equal("SignWell .NET SDK/0.1.0-beta.1", handler.UserAgent);
+        var version = typeof(SignWellClient).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
+            .InformationalVersion.Split('+')[0];
+        Assert.Equal($"SignWell .NET SDK/{version}", handler.UserAgent);
         stream.Dispose();
         Assert.True(content.WasDisposed);
         Assert.True(content.Stream.WasDisposed);

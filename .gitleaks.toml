@@ -1,0 +1,7 @@
+[allowlist]
+description = "Known inert OpenAPI example identifiers"
+regexTarget = "match"
+regexes = [
+  '''api_application_id:\s+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}''',
+  '''https://www\.signwell\.com/document_attachments/[A-Za-z0-9]+/\?access=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}''',
+]
