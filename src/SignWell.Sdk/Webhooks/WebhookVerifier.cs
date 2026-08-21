@@ -118,8 +118,8 @@ public static class WebhookVerifier
         {
             if (freshness < TimeSpan.Zero)
                 throw new WebhookVerificationException("Freshness must be non-negative.");
-            var delta = Math.Abs(now.ToUnixTimeSeconds() - parsed.Timestamp);
-            if (delta > freshness.Value.TotalSeconds)
+            var delta = Math.Abs((decimal)now.ToUnixTimeSeconds() - parsed.Timestamp);
+            if (delta > (decimal)freshness.Value.TotalSeconds)
                 throw new WebhookVerificationException("Webhook timestamp is outside the allowed freshness window.");
         }
 

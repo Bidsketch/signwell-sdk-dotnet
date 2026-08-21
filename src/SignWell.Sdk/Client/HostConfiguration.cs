@@ -117,6 +117,7 @@ namespace SignWell.Sdk.Client
             _jsonOptions.Converters.Add(new Nom151CertificateResponseNom151JsonConverter());
             _jsonOptions.Converters.Add(new Nom151UrlResponseJsonConverter());
             _jsonOptions.Converters.Add(new PaginationMetaJsonConverter());
+            _jsonOptions.Converters.Add(new PasscodeDeliveryJsonConverter());
             _jsonOptions.Converters.Add(new PlaceholdersInnerJsonConverter());
             _jsonOptions.Converters.Add(new RateLimitErrorResponseJsonConverter());
             _jsonOptions.Converters.Add(new RecipientsInnerJsonConverter());
@@ -130,6 +131,8 @@ namespace SignWell.Sdk.Client
             _jsonOptions.Converters.Add(new TemplateRecipientsInnerJsonConverter());
             _jsonOptions.Converters.Add(new TextValidationJsonConverter());
             _jsonOptions.Converters.Add(new TextValidationNullableJsonConverter());
+            _jsonOptions.Converters.Add(new UpdateAuthenticationRequestJsonConverter());
+            _jsonOptions.Converters.Add(new UpdateAuthenticationRequestRecipientsInnerJsonConverter());
             _jsonOptions.Converters.Add(new UpdateDocumentAndSendRequestJsonConverter());
             _jsonOptions.Converters.Add(new UpdateRecipientsMapInnerJsonConverter());
             _jsonOptions.Converters.Add(new UpdateRecipientsRequestJsonConverter());

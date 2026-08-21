@@ -61,14 +61,14 @@ public sealed class ResponseModesClient
     }
 
     public Task<OwnedResponseStream> GetCompletedPdfStreamAsync(
-        Guid id, bool auditPage = false, FileFormat? fileFormat = null, CancellationToken cancellationToken = default) =>
+        Guid id, bool auditPage = true, FileFormat? fileFormat = null, CancellationToken cancellationToken = default) =>
         SendStreamAsync(
             $"/api/v1/documents/{id:D}/completed_pdf/?url_only=false&audit_page={Lower(auditPage)}{FileFormatQuery(fileFormat)}",
             "PDF or ZIP content",
             cancellationToken);
 
     public Task<CompletedPdfUrlResponse> GetCompletedPdfUrlAsync(
-        Guid id, bool auditPage = false, FileFormat? fileFormat = null, CancellationToken cancellationToken = default) =>
+        Guid id, bool auditPage = true, FileFormat? fileFormat = null, CancellationToken cancellationToken = default) =>
         SendJsonAsync<CompletedPdfUrlResponse>(
             $"/api/v1/documents/{id:D}/completed_pdf/?url_only=true&audit_page={Lower(auditPage)}{FileFormatQuery(fileFormat)}",
             cancellationToken);
@@ -126,7 +126,7 @@ public sealed class ResponseModesClient
     {
         var client = _factory.CreateClient(HttpClientName);
         client.DefaultRequestHeaders.Remove("X-Api-Key");
-        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        using var request = new HttpRequestMessage(HttpMethod.Get, Prefix(path));
         request.Headers.TryAddWithoutValidation("X-Api-Key", _options.ApiKey);
         try
         {
@@ -140,6 +140,12 @@ public sealed class ResponseModesClient
         {
             throw new ApiConnectionException(ex);
         }
+    }
+
+    private string Prefix(string path)
+    {
+        var prefix = _options.BaseUri.AbsolutePath.TrimEnd('/');
+        return prefix.Length == 0 ? path : prefix + path;
     }
 
     private static string BulkCsvPath(IReadOnlyCollection<Guid> ids, bool base64)

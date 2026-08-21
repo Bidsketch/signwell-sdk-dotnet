@@ -3153,6 +3153,47 @@ paths:
       - stream
       - url
       - object
+  /api/v1/documents/{id}/authentication/:
+    patch:
+      description: Update passcode delivery settings for recipients on a sent document.
+        Only recipients who have not started signing can be updated.
+      operationId: updateAuthentication
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: "#/components/schemas/DocumentId"
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/update_authentication_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResponse"
+          description: successful
+        "404":
+          description: not found
+        "422":
+          description: unprocessable entity
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitErrorResponse"
+          description: rate limit exceeded
+      security:
+      - api_key: []
+      summary: Update Authentication
+      tags:
+      - Document
   /api/v1/document_templates/documents/:
     post:
       description: Creates and optionally sends a new document for signing. If `draft`
@@ -8940,6 +8981,33 @@ components:
       required:
       - error
       type: object
+    passcode_delivery:
+      description: Passcode delivery settings.
+      properties:
+        enabled:
+          description: Enable or disable passcode delivery.
+          type: boolean
+        methods:
+          description: "Delivery methods. Defaults to [\"email\"]."
+          items:
+            enum:
+            - email
+            type: string
+          type: array
+        expire_after_access:
+          description: Clear passcode after successful authentication.
+          type: boolean
+      type: object
+    update_authentication_request:
+      properties:
+        recipients:
+          description: Recipients whose authentication settings should be updated.
+          items:
+            $ref: "#/components/schemas/update_authentication_request_recipients_inner"
+          type: array
+      required:
+      - recipients
+      type: object
     ValidationErrorValue:
       oneOf:
       - type: string
@@ -10530,6 +10598,19 @@ components:
       required:
       - error
       - message
+      type: object
+    update_authentication_request_recipients_inner:
+      properties:
+        id:
+          description: Recipient id from the Get Document response.
+          type: string
+        passcode:
+          description: Updated passcode for the recipient.
+          type: string
+        passcode_delivery:
+          $ref: "#/components/schemas/passcode_delivery"
+      required:
+      - id
       type: object
   securitySchemes:
     api_key:

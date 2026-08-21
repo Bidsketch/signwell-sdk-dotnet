@@ -147,6 +147,8 @@ namespace SignWell.Sdk.Client
                 return FieldTypeValueConverter.ToJsonValue(fieldType);
             if (obj is FileFormat fileFormat)
                 return FileFormatValueConverter.ToJsonValue(fileFormat);
+            if (obj is PasscodeDelivery.MethodsEnum passcodeDeliveryMethodsEnum)
+                return PasscodeDelivery.MethodsEnumToJsonValue(passcodeDeliveryMethodsEnum);
             if (obj is TextValidation textValidation)
                 return TextValidationValueConverter.ToJsonValue(textValidation);
             if (obj is ICollection collection)

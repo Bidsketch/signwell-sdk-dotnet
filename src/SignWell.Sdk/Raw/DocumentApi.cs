@@ -236,6 +236,31 @@ namespace SignWell.Sdk.Raw
         Task<ISendReminderApiResponse?> SendReminderOrDefaultAsync(Guid id, SendReminderRequest sendReminderRequest, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Update Authentication
+        /// </summary>
+        /// <remarks>
+        /// Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.
+        /// </remarks>
+        /// <exception cref="ApiException">Thrown when fails to make API call</exception>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns><see cref="Task"/>&lt;<see cref="IUpdateAuthenticationApiResponse"/>&gt;</returns>
+        Task<IUpdateAuthenticationApiResponse> UpdateAuthenticationAsync(Guid id, UpdateAuthenticationRequest updateAuthenticationRequest, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Update Authentication
+        /// </summary>
+        /// <remarks>
+        /// Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.
+        /// </remarks>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns><see cref="Task"/>&lt;<see cref="IUpdateAuthenticationApiResponse"/>?&gt;</returns>
+        Task<IUpdateAuthenticationApiResponse?> UpdateAuthenticationOrDefaultAsync(Guid id, UpdateAuthenticationRequest updateAuthenticationRequest, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Update Recipients
         /// </summary>
         /// <remarks>
@@ -472,6 +497,36 @@ namespace SignWell.Sdk.Raw
     }
 
     /// <summary>
+    /// The <see cref="IUpdateAuthenticationApiResponse"/>
+    /// </summary>
+    public interface IUpdateAuthenticationApiResponse : SignWell.Sdk.Client.IApiResponse, IOk<SignWell.Sdk.Models.DocumentResponse?>, ITooManyRequests<SignWell.Sdk.Models.RateLimitErrorResponse?>
+    {
+        /// <summary>
+        /// Returns true if the response is 200 Ok
+        /// </summary>
+        /// <returns></returns>
+        bool IsOk { get; }
+
+        /// <summary>
+        /// Returns true if the response is 404 NotFound
+        /// </summary>
+        /// <returns></returns>
+        bool IsNotFound { get; }
+
+        /// <summary>
+        /// Returns true if the response is 422 UnprocessableContent
+        /// </summary>
+        /// <returns></returns>
+        bool IsUnprocessableContent { get; }
+
+        /// <summary>
+        /// Returns true if the response is 429 TooManyRequests
+        /// </summary>
+        /// <returns></returns>
+        bool IsTooManyRequests { get; }
+    }
+
+    /// <summary>
     /// The <see cref="IUpdateRecipientsApiResponse"/>
     /// </summary>
     public interface IUpdateRecipientsApiResponse : SignWell.Sdk.Client.IApiResponse, IOk<SignWell.Sdk.Models.DocumentResponse?>, ITooManyRequests<SignWell.Sdk.Models.RateLimitErrorResponse?>
@@ -676,6 +731,26 @@ namespace SignWell.Sdk.Raw
         internal void ExecuteOnErrorSendReminder(Exception exception)
         {
             OnErrorSendReminder?.Invoke(this, new ExceptionEventArgs(exception));
+        }
+
+        /// <summary>
+        /// The event raised after the server response
+        /// </summary>
+        public event EventHandler<ApiResponseEventArgs>? OnUpdateAuthentication;
+
+        /// <summary>
+        /// The event raised after an error querying the server
+        /// </summary>
+        public event EventHandler<ExceptionEventArgs>? OnErrorUpdateAuthentication;
+
+        internal void ExecuteOnUpdateAuthentication(DocumentApi.UpdateAuthenticationApiResponse apiResponse)
+        {
+            OnUpdateAuthentication?.Invoke(this, new ApiResponseEventArgs(apiResponse));
+        }
+
+        internal void ExecuteOnErrorUpdateAuthentication(Exception exception)
+        {
+            OnErrorUpdateAuthentication?.Invoke(this, new ExceptionEventArgs(exception));
         }
 
         /// <summary>
@@ -3432,6 +3507,325 @@ namespace SignWell.Sdk.Raw
 
                 return result != null;
             }
+
+            /// <summary>
+            /// Returns true if the response is 429 TooManyRequests
+            /// </summary>
+            /// <returns></returns>
+            public bool IsTooManyRequests => 429 == (int)StatusCode;
+
+            /// <summary>
+            /// Deserializes the response if the response is 429 TooManyRequests
+            /// </summary>
+            /// <returns></returns>
+            public SignWell.Sdk.Models.RateLimitErrorResponse? TooManyRequests()
+            {
+                // This logic may be modified with the AsModel.mustache template
+                return IsTooManyRequests
+                    ? System.Text.Json.JsonSerializer.Deserialize<SignWell.Sdk.Models.RateLimitErrorResponse>(RawContent, _jsonSerializerOptions)
+                    : default;
+            }
+
+            /// <summary>
+            /// Returns true if the response is 429 TooManyRequests and the deserialized response is not null
+            /// </summary>
+            /// <param name="result"></param>
+            /// <returns></returns>
+            public bool TryTooManyRequests(out SignWell.Sdk.Models.RateLimitErrorResponse? result)
+            {
+                result = null;
+
+                try
+                {
+                    result = TooManyRequests();
+                } catch (Exception e)
+                {
+                    OnDeserializationErrorDefaultImplementation(e, (HttpStatusCode)429);
+                }
+
+                return result != null;
+            }
+
+            private void OnDeserializationErrorDefaultImplementation(Exception exception, HttpStatusCode httpStatusCode)
+            {
+                bool suppressDefaultLog = false;
+                OnDeserializationError(ref suppressDefaultLog, exception, httpStatusCode);
+                if (!suppressDefaultLog)
+                    Logger.LogError(exception, "An error occurred while deserializing the {code} response.", httpStatusCode);
+            }
+
+            partial void OnDeserializationError(ref bool suppressDefaultLog, Exception exception, HttpStatusCode httpStatusCode);
+        }
+
+        partial void FormatUpdateAuthentication(ref Guid id, UpdateAuthenticationRequest updateAuthenticationRequest);
+
+        /// <summary>
+        /// Validates the request parameters
+        /// </summary>
+        /// <param name="updateAuthenticationRequest"></param>
+        /// <returns></returns>
+        private void ValidateUpdateAuthentication(UpdateAuthenticationRequest updateAuthenticationRequest)
+        {
+            if (updateAuthenticationRequest == null)
+                throw new ArgumentNullException(nameof(updateAuthenticationRequest));
+        }
+
+        /// <summary>
+        /// Processes the server response
+        /// </summary>
+        /// <param name="apiResponseLocalVar"></param>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        private void AfterUpdateAuthenticationDefaultImplementation(IUpdateAuthenticationApiResponse apiResponseLocalVar, Guid id, UpdateAuthenticationRequest updateAuthenticationRequest)
+        {
+            bool suppressDefaultLog = false;
+            AfterUpdateAuthentication(ref suppressDefaultLog, apiResponseLocalVar, id, updateAuthenticationRequest);
+            if (!suppressDefaultLog)
+                Logger.LogInformation("{0,-9} | {1} | {2}", (apiResponseLocalVar.DownloadedAt - apiResponseLocalVar.RequestedAt).TotalSeconds, apiResponseLocalVar.StatusCode, apiResponseLocalVar.Path);
+        }
+
+        /// <summary>
+        /// Processes the server response
+        /// </summary>
+        /// <param name="suppressDefaultLog"></param>
+        /// <param name="apiResponseLocalVar"></param>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        partial void AfterUpdateAuthentication(ref bool suppressDefaultLog, IUpdateAuthenticationApiResponse apiResponseLocalVar, Guid id, UpdateAuthenticationRequest updateAuthenticationRequest);
+
+        /// <summary>
+        /// Logs exceptions that occur while retrieving the server response
+        /// </summary>
+        /// <param name="exceptionLocalVar"></param>
+        /// <param name="pathFormatLocalVar"></param>
+        /// <param name="pathLocalVar"></param>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        private void OnErrorUpdateAuthenticationDefaultImplementation(Exception exceptionLocalVar, string pathFormatLocalVar, string pathLocalVar, Guid id, UpdateAuthenticationRequest updateAuthenticationRequest)
+        {
+            bool suppressDefaultLogLocalVar = false;
+            OnErrorUpdateAuthentication(ref suppressDefaultLogLocalVar, exceptionLocalVar, pathFormatLocalVar, pathLocalVar, id, updateAuthenticationRequest);
+            if (!suppressDefaultLogLocalVar)
+                Logger.LogError(exceptionLocalVar, "An error occurred while sending the request to the server.");
+        }
+
+        /// <summary>
+        /// A partial method that gives developers a way to provide customized exception handling
+        /// </summary>
+        /// <param name="suppressDefaultLogLocalVar"></param>
+        /// <param name="exceptionLocalVar"></param>
+        /// <param name="pathFormatLocalVar"></param>
+        /// <param name="pathLocalVar"></param>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        partial void OnErrorUpdateAuthentication(ref bool suppressDefaultLogLocalVar, Exception exceptionLocalVar, string pathFormatLocalVar, string pathLocalVar, Guid id, UpdateAuthenticationRequest updateAuthenticationRequest);
+
+        /// <summary>
+        /// Update Authentication Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns><see cref="Task"/>&lt;<see cref="IUpdateAuthenticationApiResponse"/>&gt;</returns>
+        public async Task<IUpdateAuthenticationApiResponse?> UpdateAuthenticationOrDefaultAsync(Guid id, UpdateAuthenticationRequest updateAuthenticationRequest, System.Threading.CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await UpdateAuthenticationAsync(id, updateAuthenticationRequest, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Update Authentication Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.
+        /// </summary>
+        /// <exception cref="ApiException">Thrown when fails to make API call</exception>
+        /// <param name="id"></param>
+        /// <param name="updateAuthenticationRequest"></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns><see cref="Task"/>&lt;<see cref="IUpdateAuthenticationApiResponse"/>&gt;</returns>
+        public async Task<IUpdateAuthenticationApiResponse> UpdateAuthenticationAsync(Guid id, UpdateAuthenticationRequest updateAuthenticationRequest, System.Threading.CancellationToken cancellationToken = default)
+        {
+            UriBuilder uriBuilderLocalVar = new UriBuilder();
+
+            try
+            {
+                ValidateUpdateAuthentication(updateAuthenticationRequest);
+
+                FormatUpdateAuthentication(ref id, updateAuthenticationRequest);
+
+                using (HttpRequestMessage httpRequestMessageLocalVar = new HttpRequestMessage())
+                {
+                    uriBuilderLocalVar.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilderLocalVar.Port = HttpClient.BaseAddress.Port;
+                    uriBuilderLocalVar.Scheme = HttpClient.BaseAddress.Scheme;
+                    uriBuilderLocalVar.Path = HttpClient.BaseAddress.AbsolutePath == "/"
+                        ? "/api/v1/documents/{id}/authentication/"
+                        : string.Concat(HttpClient.BaseAddress.AbsolutePath.TrimEnd('/'), "/api/v1/documents/{id}/authentication/");
+                    uriBuilderLocalVar.Path = uriBuilderLocalVar.Path.Replace("%7Bid%7D", Uri.EscapeDataString(id.ToString()));
+
+                    httpRequestMessageLocalVar.Content = (updateAuthenticationRequest as object) is System.IO.Stream stream
+                        ? httpRequestMessageLocalVar.Content = new StreamContent(stream)
+                        : httpRequestMessageLocalVar.Content = new StringContent(JsonSerializer.Serialize(updateAuthenticationRequest, _jsonSerializerOptions));
+
+                    List<TokenBase> tokenBaseLocalVars = new List<TokenBase>();
+                    ApiKeyToken apiKeyTokenLocalVar1 = (ApiKeyToken) await ApiKeyProvider.GetAsync("X-Api-Key", cancellationToken).ConfigureAwait(false);
+                    tokenBaseLocalVars.Add(apiKeyTokenLocalVar1);
+                    apiKeyTokenLocalVar1.UseInHeader(httpRequestMessageLocalVar);
+
+                    httpRequestMessageLocalVar.RequestUri = uriBuilderLocalVar.Uri;
+
+                    string[] contentTypes = new string[] {
+                        "application/json"
+                    };
+
+                    string? contentTypeLocalVar = ClientUtils.SelectHeaderContentType(contentTypes);
+
+                    if (contentTypeLocalVar != null && httpRequestMessageLocalVar.Content != null)
+                        httpRequestMessageLocalVar.Content.Headers.ContentType = new MediaTypeHeaderValue(contentTypeLocalVar);
+
+                    string[] acceptLocalVars = new string[] {
+                        "application/json"
+                    };
+
+                    IEnumerable<MediaTypeWithQualityHeaderValue> acceptHeaderValuesLocalVar = ClientUtils.SelectHeaderAcceptArray(acceptLocalVars);
+
+                    foreach (var acceptLocalVar in acceptHeaderValuesLocalVar)
+                        httpRequestMessageLocalVar.Headers.Accept.Add(acceptLocalVar);
+                    httpRequestMessageLocalVar.Method = new HttpMethod("PATCH");
+
+                    DateTime requestedAtLocalVar = DateTime.UtcNow;
+
+                    using (HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, cancellationToken).ConfigureAwait(false))
+                    {
+                        ILogger<UpdateAuthenticationApiResponse> apiResponseLoggerLocalVar = LoggerFactory.CreateLogger<UpdateAuthenticationApiResponse>();
+                        UpdateAuthenticationApiResponse apiResponseLocalVar;
+
+                        switch ((int)httpResponseMessageLocalVar.StatusCode) {
+                            default: {
+                                string responseContentLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                apiResponseLocalVar = new UpdateAuthenticationApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentLocalVar, "/api/v1/documents/{id}/authentication/", requestedAtLocalVar, _jsonSerializerOptions);
+
+                                break;
+                            }
+                        }
+
+                        AfterUpdateAuthenticationDefaultImplementation(apiResponseLocalVar, id, updateAuthenticationRequest);
+
+                        Events.ExecuteOnUpdateAuthentication(apiResponseLocalVar);
+
+                        if (apiResponseLocalVar.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase tokenBaseLocalVar in tokenBaseLocalVars)
+                                tokenBaseLocalVar.BeginRateLimit();
+
+                        return apiResponseLocalVar;
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                OnErrorUpdateAuthenticationDefaultImplementation(e, "/api/v1/documents/{id}/authentication/", uriBuilderLocalVar.Path, id, updateAuthenticationRequest);
+                Events.ExecuteOnErrorUpdateAuthentication(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="UpdateAuthenticationApiResponse"/>
+        /// </summary>
+        public partial class UpdateAuthenticationApiResponse : SignWell.Sdk.Client.ApiResponse, IUpdateAuthenticationApiResponse
+        {
+            /// <summary>
+            /// The logger
+            /// </summary>
+            public ILogger<UpdateAuthenticationApiResponse> Logger { get; }
+
+            /// <summary>
+            /// The <see cref="UpdateAuthenticationApiResponse"/>
+            /// </summary>
+            /// <param name="logger"></param>
+            /// <param name="httpRequestMessage"></param>
+            /// <param name="httpResponseMessage"></param>
+            /// <param name="rawContent"></param>
+            /// <param name="path"></param>
+            /// <param name="requestedAt"></param>
+            /// <param name="jsonSerializerOptions"></param>
+            public UpdateAuthenticationApiResponse(ILogger<UpdateAuthenticationApiResponse> logger, System.Net.Http.HttpRequestMessage httpRequestMessage, System.Net.Http.HttpResponseMessage httpResponseMessage, string rawContent, string path, DateTime requestedAt, System.Text.Json.JsonSerializerOptions jsonSerializerOptions) : base(httpRequestMessage, httpResponseMessage, rawContent, path, requestedAt, jsonSerializerOptions)
+            {
+                Logger = logger;
+                OnCreated(httpRequestMessage, httpResponseMessage);
+            }
+
+            /// <summary>
+            /// The <see cref="UpdateAuthenticationApiResponse"/>
+            /// </summary>
+            /// <param name="logger"></param>
+            /// <param name="httpRequestMessage"></param>
+            /// <param name="httpResponseMessage"></param>
+            /// <param name="contentStream"></param>
+            /// <param name="path"></param>
+            /// <param name="requestedAt"></param>
+            /// <param name="jsonSerializerOptions"></param>
+            public UpdateAuthenticationApiResponse(ILogger<UpdateAuthenticationApiResponse> logger, System.Net.Http.HttpRequestMessage httpRequestMessage, System.Net.Http.HttpResponseMessage httpResponseMessage, System.IO.Stream contentStream, string path, DateTime requestedAt, System.Text.Json.JsonSerializerOptions jsonSerializerOptions) : base(httpRequestMessage, httpResponseMessage, contentStream, path, requestedAt, jsonSerializerOptions)
+            {
+                Logger = logger;
+                OnCreated(httpRequestMessage, httpResponseMessage);
+            }
+
+            partial void OnCreated(global::System.Net.Http.HttpRequestMessage httpRequestMessage, System.Net.Http.HttpResponseMessage httpResponseMessage);
+
+            /// <summary>
+            /// Returns true if the response is 200 Ok
+            /// </summary>
+            /// <returns></returns>
+            public bool IsOk => 200 == (int)StatusCode;
+
+            /// <summary>
+            /// Deserializes the response if the response is 200 Ok
+            /// </summary>
+            /// <returns></returns>
+            public SignWell.Sdk.Models.DocumentResponse? Ok()
+            {
+                // This logic may be modified with the AsModel.mustache template
+                return IsOk
+                    ? System.Text.Json.JsonSerializer.Deserialize<SignWell.Sdk.Models.DocumentResponse>(RawContent, _jsonSerializerOptions)
+                    : default;
+            }
+
+            /// <summary>
+            /// Returns true if the response is 200 Ok and the deserialized response is not null
+            /// </summary>
+            /// <param name="result"></param>
+            /// <returns></returns>
+            public bool TryOk(out SignWell.Sdk.Models.DocumentResponse? result)
+            {
+                result = null;
+
+                try
+                {
+                    result = Ok();
+                } catch (Exception e)
+                {
+                    OnDeserializationErrorDefaultImplementation(e, (HttpStatusCode)200);
+                }
+
+                return result != null;
+            }
+
+            /// <summary>
+            /// Returns true if the response is 404 NotFound
+            /// </summary>
+            /// <returns></returns>
+            public bool IsNotFound => 404 == (int)StatusCode;
+
+            /// <summary>
+            /// Returns true if the response is 422 UnprocessableContent
+            /// </summary>
+            /// <returns></returns>
+            public bool IsUnprocessableContent => 422 == (int)StatusCode;
 
             /// <summary>
             /// Returns true if the response is 429 TooManyRequests

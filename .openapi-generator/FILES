@@ -80,6 +80,7 @@ docs/models/Nom151CertificateResponse.md
 docs/models/Nom151CertificateResponseNom151.md
 docs/models/Nom151UrlResponse.md
 docs/models/PaginationMeta.md
+docs/models/PasscodeDelivery.md
 docs/models/PlaceholdersInner.md
 docs/models/RateLimitErrorResponse.md
 docs/models/RecipientsInner.md
@@ -92,6 +93,8 @@ docs/models/TemplateFieldValuesInnerValue.md
 docs/models/TemplateFieldsInnerInner.md
 docs/models/TemplateRecipientsInner.md
 docs/models/TextValidation.md
+docs/models/UpdateAuthenticationRequest.md
+docs/models/UpdateAuthenticationRequestRecipientsInner.md
 docs/models/UpdateDocumentAndSendRequest.md
 docs/models/UpdateRecipientsMapInner.md
 docs/models/UpdateRecipientsRequest.md
@@ -169,6 +172,7 @@ src/SignWell.Sdk.Test/Models/Nom151CertificateResponseNom151Tests.cs
 src/SignWell.Sdk.Test/Models/Nom151CertificateResponseTests.cs
 src/SignWell.Sdk.Test/Models/Nom151UrlResponseTests.cs
 src/SignWell.Sdk.Test/Models/PaginationMetaTests.cs
+src/SignWell.Sdk.Test/Models/PasscodeDeliveryTests.cs
 src/SignWell.Sdk.Test/Models/PlaceholdersInnerTests.cs
 src/SignWell.Sdk.Test/Models/RateLimitErrorResponseTests.cs
 src/SignWell.Sdk.Test/Models/RecipientsInnerTests.cs
@@ -181,6 +185,8 @@ src/SignWell.Sdk.Test/Models/TemplateFieldValuesInnerValueTests.cs
 src/SignWell.Sdk.Test/Models/TemplateFieldsInnerInnerTests.cs
 src/SignWell.Sdk.Test/Models/TemplateRecipientsInnerTests.cs
 src/SignWell.Sdk.Test/Models/TextValidationTests.cs
+src/SignWell.Sdk.Test/Models/UpdateAuthenticationRequestRecipientsInnerTests.cs
+src/SignWell.Sdk.Test/Models/UpdateAuthenticationRequestTests.cs
 src/SignWell.Sdk.Test/Models/UpdateDocumentAndSendRequestTests.cs
 src/SignWell.Sdk.Test/Models/UpdateRecipientsMapInnerTests.cs
 src/SignWell.Sdk.Test/Models/UpdateRecipientsRequestTests.cs
@@ -290,6 +296,7 @@ src/SignWell.Sdk/Models/Nom151CertificateResponse.cs
 src/SignWell.Sdk/Models/Nom151CertificateResponseNom151.cs
 src/SignWell.Sdk/Models/Nom151UrlResponse.cs
 src/SignWell.Sdk/Models/PaginationMeta.cs
+src/SignWell.Sdk/Models/PasscodeDelivery.cs
 src/SignWell.Sdk/Models/PlaceholdersInner.cs
 src/SignWell.Sdk/Models/RateLimitErrorResponse.cs
 src/SignWell.Sdk/Models/RecipientsInner.cs
@@ -302,6 +309,8 @@ src/SignWell.Sdk/Models/TemplateFieldValuesInnerValue.cs
 src/SignWell.Sdk/Models/TemplateFieldsInnerInner.cs
 src/SignWell.Sdk/Models/TemplateRecipientsInner.cs
 src/SignWell.Sdk/Models/TextValidation.cs
+src/SignWell.Sdk/Models/UpdateAuthenticationRequest.cs
+src/SignWell.Sdk/Models/UpdateAuthenticationRequestRecipientsInner.cs
 src/SignWell.Sdk/Models/UpdateDocumentAndSendRequest.cs
 src/SignWell.Sdk/Models/UpdateRecipientsMapInner.cs
 src/SignWell.Sdk/Models/UpdateRecipientsRequest.cs

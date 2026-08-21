@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,10 @@ public sealed class ParityTests
         var services = new ServiceCollection();
         services.AddSignWell(o => o.ApiKey = "test-key");
         using var provider = services.BuildServiceProvider();
-        var client = provider.GetRequiredService<ISignWellClient>();
+        var client = provider.GetRequiredService<SignWellClient>();
+        Assert.False((bool)typeof(SignWellClient)
+            .GetField("_ownsProvider", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(client)!);
         Assert.NotNull(client.Documents.Raw);
         Assert.NotNull(provider.GetRequiredService<IDocumentApi>());
         Assert.NotNull(provider.GetRequiredService<ITemplateApi>());
@@ -151,7 +155,7 @@ public sealed class ParityTests
         var handler = new CaptureHandler(content);
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://www.signwell.com") };
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Api-Key", "conflicting-default");
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell C# SDK/0.1.0-beta.1");
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
         var transport = new ResponseModesClient(
             new SingleClientFactory(httpClient),
             new SignWellClientOptions { ApiKey = "real-key" },
@@ -161,7 +165,7 @@ public sealed class ParityTests
         Assert.False(content.WasSerialized);
         Assert.False(content.WasDisposed);
         Assert.Equal("real-key", handler.ApiKey);
-        Assert.Equal("SignWell C# SDK/0.1.0-beta.1", handler.UserAgent);
+        Assert.Equal("SignWell .NET SDK/0.1.0-beta.1", handler.UserAgent);
         stream.Dispose();
         Assert.True(content.WasDisposed);
         Assert.True(content.Stream.WasDisposed);

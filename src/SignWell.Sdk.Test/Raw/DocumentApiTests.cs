@@ -151,6 +151,19 @@ namespace SignWell.Sdk.Test.Raw
         }
 
         /// <summary>
+        /// Test UpdateAuthentication
+        /// </summary>
+        [Fact(Skip = "not implemented")]
+        public async Task UpdateAuthenticationAsyncTest()
+        {
+            Guid id = default!;
+            UpdateAuthenticationRequest updateAuthenticationRequest = default!;
+            var response = await _instance.UpdateAuthenticationAsync(id, updateAuthenticationRequest);
+            var model = response.Ok();
+            Assert.IsType<DocumentResponse>(model);
+        }
+
+        /// <summary>
         /// Test UpdateRecipients
         /// </summary>
         [Fact(Skip = "not implemented")]

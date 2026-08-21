@@ -12,6 +12,7 @@ All URIs are relative to *https://www.signwell.com*
 | [**ListDocuments**](DocumentApi.md#listdocuments) | **GET** /api/v1/documents | List Documents |
 | [**SendDocument**](DocumentApi.md#senddocument) | **POST** /api/v1/documents/{id}/send/ | Update and Send Document |
 | [**SendReminder**](DocumentApi.md#sendreminder) | **POST** /api/v1/documents/{id}/remind/ | Send Reminder |
+| [**UpdateAuthentication**](DocumentApi.md#updateauthentication) | **PATCH** /api/v1/documents/{id}/authentication/ | Update Authentication |
 | [**UpdateRecipients**](DocumentApi.md#updaterecipients) | **PATCH** /api/v1/documents/{id}/recipients/ | Update Recipients |
 
 <a id="createdocument"></a>
@@ -324,6 +325,46 @@ void (empty response body)
 | **201** | created |  -  |
 | **422** | unprocessable entity |  -  |
 | **404** | not found |  -  |
+| **429** | rate limit exceeded |  -  |
+
+[[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)
+
+<a id="updateauthentication"></a>
+# **UpdateAuthentication**
+> DocumentResponse UpdateAuthentication (Guid id, UpdateAuthenticationRequest updateAuthenticationRequest)
+
+Update Authentication
+
+Update passcode delivery settings for recipients on a sent document. Only recipients who have not started signing can be updated.
+
+
+### Parameters
+
+| Name | Type | Description | Notes |
+|------|------|-------------|-------|
+| **id** | **Guid** |  |  |
+| **updateAuthenticationRequest** | [**UpdateAuthenticationRequest**](UpdateAuthenticationRequest.md) |  |  |
+
+### Return type
+
+[**DocumentResponse**](DocumentResponse.md)
+
+### Authorization
+
+[api_key](../README.md#api_key)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful |  -  |
+| **404** | not found |  -  |
+| **422** | unprocessable entity |  -  |
 | **429** | rate limit exceeded |  -  |
 
 [[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)

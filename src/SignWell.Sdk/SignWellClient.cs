@@ -137,7 +137,7 @@ public static class SignWellServiceCollectionExtensions
         var options = new SignWellClientOptions();
         configure(options);
         AddSignWellCore(services, options);
-        services.AddSingleton<SignWellClient>();
+        services.AddSingleton(sp => new SignWellClient(sp));
         services.AddSingleton<ISignWellClient>(sp => sp.GetRequiredService<SignWellClient>());
         return services;
     }
@@ -146,7 +146,7 @@ public static class SignWellServiceCollectionExtensions
     {
         if (services is null) throw new ArgumentNullException(nameof(services));
         AddSignWellCore(services, options);
-        services.AddSingleton<SignWellClient>();
+        services.AddSingleton(sp => new SignWellClient(sp));
         services.AddSingleton<ISignWellClient>(sp => sp.GetRequiredService<SignWellClient>());
         return services;
     }
@@ -164,7 +164,7 @@ public static class SignWellServiceCollectionExtensions
                     client.BaseAddress = options.BaseUri;
                     client.Timeout = options.Timeout;
                     client.DefaultRequestHeaders.Remove("X-Api-Key");
-                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell C# SDK/0.1.0-beta.1");
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
                 },
                 options.ConfigureHttpClientBuilder)
             .AddTokens(new ApiKeyToken(options.ApiKey, ClientUtils.ApiKeyHeader.X_Api_Key, string.Empty)));
@@ -176,7 +176,7 @@ public static class SignWellServiceCollectionExtensions
                 client.BaseAddress = options.BaseUri;
                 client.Timeout = options.Timeout;
                 client.DefaultRequestHeaders.Remove("X-Api-Key");
-                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell C# SDK/0.1.0-beta.1");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
             });
         options.ConfigureHttpClientBuilder?.Invoke(streaming);
         services.AddSingleton<ResponseModesClient>();

@@ -57,7 +57,7 @@ var created = new List<Guid>();
 try
 {
     var draft = await client.Embedded.CreateRequestingDocumentAsync(
-        "C# SDK live acceptance draft",
+        ".NET SDK live acceptance draft",
         [new EmbeddedFile("fixture.pdf", FileUrl: fixtureFileUrl)],
         [new EmbeddedRecipient("SDK Acceptance", recipientEmail)],
         testMode: true);
@@ -66,7 +66,7 @@ try
     Console.WriteLine("Update/send requires an interactively edited draft; offline alias coverage remains required.");
 
     var signing = await client.Embedded.CreateSigningDocumentAsync(
-        "C# SDK live acceptance embedded signing",
+        ".NET SDK live acceptance embedded signing",
         [new EmbeddedFile("fixture.pdf", FileUrl: fixtureFileUrl)],
         [new EmbeddedRecipient("SDK Acceptance", recipientEmail)],
         withSignaturePage: true,
@@ -75,7 +75,7 @@ try
     Console.WriteLine($"Embedded URL present: {EmbeddedWorkflows.SigningUrl(signing) is not null}");
 
     var fieldSigning = await client.Embedded.CreateSigningDocumentAsync(
-        "C# SDK live acceptance explicit fields",
+        ".NET SDK live acceptance explicit fields",
         [new EmbeddedFile("fixture.pdf", FileUrl: fixtureFileUrl)],
         [new EmbeddedRecipient("SDK Acceptance", recipientEmail)],
         [[new EmbeddedField(72, 520, 1, FieldType.Signature)]],
@@ -83,8 +83,19 @@ try
     created.Add(fieldSigning.Id);
     Console.WriteLine($"Explicit-field document created: {fieldSigning.Id}");
 
+    using var fixtureClient = new HttpClient();
+    var fixtureBase64 = Convert.ToBase64String(await fixtureClient.GetByteArrayAsync(fixtureFileUrl));
+    var base64Signing = await client.Embedded.CreateSigningDocumentAsync(
+        ".NET SDK live acceptance base64 PDF",
+        [new EmbeddedFile("fixture.pdf", FileBase64: fixtureBase64)],
+        [new EmbeddedRecipient("SDK Acceptance", recipientEmail)],
+        withSignaturePage: true,
+        testMode: true);
+    created.Add(base64Signing.Id);
+    Console.WriteLine($"Base64 PDF document created: {base64Signing.Id}");
+
     var textTags = await client.Embedded.CreateSigningDocumentAsync(
-        "C# SDK live acceptance text tags",
+        ".NET SDK live acceptance text tags",
         [new EmbeddedFile("fixture.pdf", FileUrl: fixtureFileUrl)],
         [new EmbeddedRecipient("SDK Acceptance", recipientEmail)],
         textTags: true,

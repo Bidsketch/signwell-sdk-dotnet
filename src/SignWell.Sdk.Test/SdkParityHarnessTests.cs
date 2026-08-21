@@ -18,7 +18,7 @@ namespace SignWell.Sdk.Test;
 public sealed class SdkParityHarnessTests
 {
     [Fact]
-    public void RawClientsExposeAll27OpenApiOperations()
+    public void RawClientsExposeAllOpenApiOperations()
     {
         var actual = new[]
         {
@@ -40,10 +40,11 @@ public sealed class SdkParityHarnessTests
             "GetBulkSendDocumentsAsync", "GetCompletedPdfAsync", "GetDocumentAsync", "GetMeAsync",
             "GetNom151CertificateAsync", "GetTemplateAsync", "ListBulkSendsAsync",
             "ListDocumentsAsync", "ListTemplatesAsync", "ListWebhooksAsync", "SendDocumentAsync",
-            "SendReminderAsync", "UpdateRecipientsAsync", "UpdateTemplateAsync", "ValidateBulkSendCsvAsync"
+            "SendReminderAsync", "UpdateAuthenticationAsync", "UpdateRecipientsAsync", "UpdateTemplateAsync",
+            "ValidateBulkSendCsvAsync"
         };
 
-        Assert.Equal(27, actual.Count);
+        Assert.Equal(28, actual.Count);
         Assert.True(expected.SetEquals(actual), $"Missing: {string.Join(", ", expected.Except(actual))}; extra: {string.Join(", ", actual.Except(expected))}");
     }
 
@@ -258,6 +259,7 @@ public sealed class SdkParityHarnessTests
         Assert.Equal("issued", (await modes.GetNom151ObjectAsync(id)).Nom151.Status);
 
         Assert.Contains(paths, path => path.Contains("url_only=false&audit_page=true&file_format=pdf", StringComparison.Ordinal));
+        Assert.Contains(paths, path => path.Contains("url_only=true&audit_page=true", StringComparison.Ordinal));
         Assert.Contains(paths, path => path.Contains("template_ids%5B%5D=", StringComparison.Ordinal) && path.Contains("base64=true", StringComparison.Ordinal));
         Assert.All(paths.Where(path => path.Contains("csv_template", StringComparison.Ordinal)),
             path => Assert.Equal(2, path.Split("template_ids%5B%5D=", StringSplitOptions.None).Length - 1));
@@ -269,6 +271,60 @@ public sealed class SdkParityHarnessTests
         Assert.All(paths.Where(path => path.Contains("nom151_certificate", StringComparison.Ordinal)),
             path => Assert.Contains("nom151_certificate/?", path, StringComparison.Ordinal));
         await Assert.ThrowsAsync<ArgumentException>(() => modes.GetBulkSendCsvBase64Async(Array.Empty<Guid>()));
+    }
+
+    [Fact]
+    public async Task ResponseModesHonorBaseUriPathPrefix()
+    {
+        Uri? seen = null;
+        using var httpClient = new HttpClient(new DelegateHandler((request, _) =>
+        {
+            seen = request.RequestUri;
+            return Task.FromResult(Json(HttpStatusCode.OK, """{"file_url":"https://files.signwell.com/document.pdf"}"""));
+        }))
+        { BaseAddress = new Uri("https://api.example.com/root") };
+        var options = new SignWellClientOptions
+        {
+            ApiKey = "test-key",
+            BaseUri = new Uri("https://api.example.com/root")
+        };
+        options.Validate();
+        var modes = new ResponseModesClient(
+            new SingleClientFactory(httpClient),
+            options,
+            new JsonSerializerOptionsProvider(new JsonSerializerOptions()));
+
+        await modes.GetCompletedPdfUrlAsync(Guid.NewGuid());
+
+        Assert.StartsWith("/root/api/v1/documents/", seen!.AbsolutePath, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task UpdateAuthenticationPatchesPasscodeDelivery()
+    {
+        var id = Guid.NewGuid();
+        Uri? seen = null;
+        HttpMethod? method = null;
+        string? body = null;
+        using var client = Client(async (request, cancellationToken) =>
+        {
+            seen = request.RequestUri;
+            method = request.Method;
+            body = await request.Content!.ReadAsStringAsync(cancellationToken);
+            return Json(HttpStatusCode.OK, $$"""{"test_mode":true,"id":"{{id}}","status":"Sent"}""");
+        });
+
+        var updated = await client.Documents.UpdateAuthenticationAsync(
+            id,
+            new UpdateAuthenticationRequest(new List<UpdateAuthenticationRequestRecipientsInner>
+            {
+                new(id.ToString("D"), passcode: new Option<string?>("secret"))
+            }));
+
+        Assert.Equal(id, updated.Id);
+        Assert.Equal(HttpMethod.Patch, method);
+        Assert.Contains("/authentication", seen!.AbsolutePath, StringComparison.Ordinal);
+        Assert.Contains("\"passcode\":\"secret\"", body);
     }
 
     [Fact]
@@ -552,9 +608,11 @@ public sealed class SdkParityHarnessTests
         var hash = Hmac(webhookId, $"document_completed@{timestamp}");
         using var valid = JsonDocument.Parse($$"""{"type":"document_completed","time":{{timestamp}},"hash":"{{hash}}"}""");
         using var malformed = JsonDocument.Parse("{}");
+        using var extremeTimestamp = JsonDocument.Parse("""{"type":"document_completed","time":-9223372036854775808,"hash":"bad"}""");
 
         WebhookVerifier.VerifyOrThrow(valid.RootElement, webhookId, TimeSpan.FromMinutes(5), now.AddMinutes(5));
         Assert.False(WebhookVerifier.Verify(valid.RootElement, webhookId, TimeSpan.FromMinutes(5), now.AddMinutes(5).AddSeconds(1)));
+        Assert.False(WebhookVerifier.Verify(extremeTimestamp.RootElement, webhookId, TimeSpan.FromMinutes(5), DateTimeOffset.UnixEpoch));
         Assert.Throws<WebhookVerificationException>(() => WebhookVerifier.VerifyOrThrow(malformed.RootElement, webhookId));
         Assert.Throws<WebhookVerificationException>(() => WebhookVerifier.VerifyOrThrow(valid.RootElement, webhookId, TimeSpan.FromSeconds(-1), now));
 
