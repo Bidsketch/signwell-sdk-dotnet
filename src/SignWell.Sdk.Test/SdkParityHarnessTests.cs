@@ -300,6 +300,44 @@ public sealed class SdkParityHarnessTests
     }
 
     [Fact]
+    public async Task RawResponseModesDoNotTreatBinaryAsJson()
+    {
+        var id = Guid.NewGuid();
+        var pdfStream = new DisposalTrackingStream(new byte[2_000_000]);
+        var pdfContent = new StreamContent(pdfStream);
+        pdfContent.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+        using var client = Client((request, _) =>
+        {
+            if (request.RequestUri!.AbsolutePath.Contains("nom151_certificate", StringComparison.Ordinal))
+                return Task.FromResult(Binary("application/zip", "PK-raw-response"));
+            if (request.RequestUri.AbsolutePath.Contains("csv_template", StringComparison.Ordinal))
+                return Task.FromResult(Binary("text/csv", "email,name"));
+            if (request.RequestUri!.Query.Contains("url_only=true", StringComparison.Ordinal))
+                return Task.FromResult(Json(HttpStatusCode.OK, """{"file_url":"https://files.signwell.com/document.pdf"}"""));
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = pdfContent });
+        });
+
+        var binaryResponse = await client.Documents.Raw.GetCompletedPdfAsync(id, new Option<bool>(false));
+        var binary = binaryResponse.Ok()!.SystemIOStream!;
+        Assert.Equal(0, pdfStream.Position);
+        Assert.False(pdfStream.WasDisposed);
+        binary.Dispose();
+        Assert.True(pdfStream.WasDisposed);
+
+        var urlResponse = await client.Documents.Raw.GetCompletedPdfAsync(id, new Option<bool>(true));
+        Assert.Equal("https://files.signwell.com/document.pdf", urlResponse.Ok()!.CompletedPdfUrlResponse!.FileUrl);
+
+        var certificateResponse = await client.Regional.Raw.GetNom151CertificateAsync(id, new Option<bool>(false), new Option<bool>(false));
+        using var certificate = certificateResponse.ContentStream!;
+        Assert.Null(certificateResponse.Ok());
+
+        var csvResponse = await client.BulkSends.Raw.GetBulkSendCsvTemplateAsync(new List<Guid> { id }, new Option<bool>(false));
+        using var csv = csvResponse.Ok()!;
+        using var csvReader = new StreamReader(csv, Encoding.UTF8);
+        Assert.Equal("email,name", await csvReader.ReadToEndAsync());
+    }
+
+    [Fact]
     public async Task UpdateAuthenticationPatchesPasscodeDelivery()
     {
         var id = Guid.NewGuid();
@@ -621,6 +659,11 @@ public sealed class SdkParityHarnessTests
         await Assert.ThrowsAsync<WebhookVerificationException>(async () =>
             await WebhookVerifier.VerifyOnceOrThrowAsync(valid.RootElement, webhookId, replay, TimeSpan.FromMinutes(5), now));
 
+        var boundaryNow = now.AddMinutes(5);
+        var boundaryReplay = new InMemoryWebhookReplayStore(clock: () => boundaryNow);
+        Assert.True(await WebhookVerifier.VerifyOnceAsync(valid.RootElement, webhookId, boundaryReplay, TimeSpan.FromMinutes(5), boundaryNow));
+        Assert.False(await WebhookVerifier.VerifyOnceAsync(valid.RootElement, webhookId, boundaryReplay, TimeSpan.FromMinutes(5), boundaryNow));
+
         var full = new InMemoryWebhookReplayStore(1, () => now);
         Assert.True(await full.TryAddAsync("occupied", now.AddMinutes(5)));
         await Assert.ThrowsAsync<WebhookReplayCapacityException>(async () =>
@@ -679,6 +722,17 @@ public sealed class SdkParityHarnessTests
         {
             Calls++;
             return new ValueTask<bool>(true);
+        }
+    }
+
+    private sealed class DisposalTrackingStream(byte[] bytes) : MemoryStream(bytes)
+    {
+        public bool WasDisposed { get; private set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) WasDisposed = true;
+            base.Dispose(disposing);
         }
     }
 }

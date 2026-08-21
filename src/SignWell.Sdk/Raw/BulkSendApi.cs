@@ -1400,7 +1400,9 @@ namespace SignWell.Sdk.Raw
 
                     DateTime requestedAtLocalVar = DateTime.UtcNow;
 
-                    using (HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, cancellationToken).ConfigureAwait(false))
+                    HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    HttpResponseMessage? responseToDisposeLocalVar = httpResponseMessageLocalVar;
+                    try
                     {
                         ILogger<GetBulkSendCsvTemplateApiResponse> apiResponseLoggerLocalVar = LoggerFactory.CreateLogger<GetBulkSendCsvTemplateApiResponse>();
                         GetBulkSendCsvTemplateApiResponse apiResponseLocalVar;
@@ -1408,8 +1410,8 @@ namespace SignWell.Sdk.Raw
                         switch ((int)httpResponseMessageLocalVar.StatusCode) {
                             case (200):
                             {
-                                byte[] responseBytesArrayLocalVar = await httpResponseMessageLocalVar.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                                System.IO.Stream responseContentStreamLocalVar = new System.IO.MemoryStream(responseBytesArrayLocalVar);
+                                System.IO.Stream responseContentStreamLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                                responseContentStreamLocalVar = new SignWell.Sdk.Resources.OwnedResponseStream(httpResponseMessageLocalVar, responseContentStreamLocalVar);
                                 apiResponseLocalVar = new GetBulkSendCsvTemplateApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentStreamLocalVar, "/api/v1/bulk_sends/csv_template/", requestedAtLocalVar, _jsonSerializerOptions);
 
                                 break;
@@ -1430,7 +1432,13 @@ namespace SignWell.Sdk.Raw
                             foreach(TokenBase tokenBaseLocalVar in tokenBaseLocalVars)
                                 tokenBaseLocalVar.BeginRateLimit();
 
+                        if (apiResponseLocalVar.ContentStream is not null)
+                            responseToDisposeLocalVar = null;
                         return apiResponseLocalVar;
+                    }
+                    finally
+                    {
+                        responseToDisposeLocalVar?.Dispose();
                     }
                 }
             }

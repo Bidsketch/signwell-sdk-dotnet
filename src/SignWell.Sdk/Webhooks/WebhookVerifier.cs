@@ -98,7 +98,7 @@ public static class WebhookVerifier
         if (replayStore is null) throw new ArgumentNullException(nameof(replayStore));
         var current = now ?? DateTimeOffset.UtcNow;
         var parsed = VerifyData(eventData, webhookId, freshness, current);
-        var expiresAt = DateTimeOffset.FromUnixTimeSeconds(parsed.Timestamp).Add(freshness);
+        var expiresAt = current.Add(freshness);
         if (!await replayStore.TryAddAsync(parsed.ReplayKey, expiresAt, cancellationToken).ConfigureAwait(false))
             throw new WebhookVerificationException("Webhook event has already been processed.");
     }

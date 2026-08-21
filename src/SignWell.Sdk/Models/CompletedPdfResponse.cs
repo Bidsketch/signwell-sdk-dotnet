@@ -109,44 +109,10 @@ namespace SignWell.Sdk.Models
         /// <exception cref="JsonException"></exception>
         public override CompletedPdfResponse Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
         {
-            int currentDepth = utf8JsonReader.CurrentDepth;
-
-            if (utf8JsonReader.TokenType != JsonTokenType.StartObject && utf8JsonReader.TokenType != JsonTokenType.StartArray)
-                throw new JsonException();
-
-            JsonTokenType startingTokenType = utf8JsonReader.TokenType;
-
-            CompletedPdfUrlResponse? completedPdfUrlResponse = default;
-            System.IO.Stream? systemIOStream = default;
-
-            while (utf8JsonReader.Read())
-            {
-                if (startingTokenType == JsonTokenType.StartObject && utf8JsonReader.TokenType == JsonTokenType.EndObject && currentDepth == utf8JsonReader.CurrentDepth)
-                    break;
-
-                if (startingTokenType == JsonTokenType.StartArray && utf8JsonReader.TokenType == JsonTokenType.EndArray && currentDepth == utf8JsonReader.CurrentDepth)
-                    break;
-
-                if (utf8JsonReader.TokenType == JsonTokenType.PropertyName && currentDepth == utf8JsonReader.CurrentDepth - 1)
-                {
-                    string? localVarJsonPropertyName = utf8JsonReader.GetString();
-                    utf8JsonReader.Read();
-
-                    switch (localVarJsonPropertyName)
-                    {
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            if (completedPdfUrlResponse != null)
-                return new CompletedPdfResponse(completedPdfUrlResponse);
-
-            if (systemIOStream != null)
-                return new CompletedPdfResponse(systemIOStream);
-
-            throw new JsonException();
+            var completedPdfUrlResponse = JsonSerializer.Deserialize<CompletedPdfUrlResponse>(ref utf8JsonReader, jsonSerializerOptions);
+            return completedPdfUrlResponse is null
+                ? throw new JsonException()
+                : new CompletedPdfResponse(completedPdfUrlResponse);
         }
 
         /// <summary>
