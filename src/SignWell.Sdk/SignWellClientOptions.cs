@@ -1,13 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace SignWell.Sdk;
 
 public sealed class SignWellClientOptions
 {
-    internal static string UserAgent { get; } =
-        $"SignWell .NET SDK/{typeof(SignWellClientOptions).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "unknown"}";
-
     public string ApiKey { get; set; } = string.Empty;
 
     public Uri BaseUri { get; set; } = new("https://www.signwell.com", UriKind.Absolute);

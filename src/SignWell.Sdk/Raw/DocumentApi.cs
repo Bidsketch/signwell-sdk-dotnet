@@ -1984,9 +1984,6 @@ namespace SignWell.Sdk.Raw
                     httpRequestMessageLocalVar.RequestUri = uriBuilderLocalVar.Uri;
 
                     string[] acceptLocalVars = new string[] {
-                        "application/pdf",
-                        "application/zip",
-                        "application/octet-stream",
                         "application/json"
                     };
 
@@ -1998,22 +1995,12 @@ namespace SignWell.Sdk.Raw
 
                     DateTime requestedAtLocalVar = DateTime.UtcNow;
 
-                    HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    HttpResponseMessage? responseToDisposeLocalVar = httpResponseMessageLocalVar;
-                    try
+                    using (HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, cancellationToken).ConfigureAwait(false))
                     {
                         ILogger<GetCompletedPdfApiResponse> apiResponseLoggerLocalVar = LoggerFactory.CreateLogger<GetCompletedPdfApiResponse>();
                         GetCompletedPdfApiResponse apiResponseLocalVar;
 
                         switch ((int)httpResponseMessageLocalVar.StatusCode) {
-                            case (200) when !urlOnly.IsSet || !urlOnly.Value:
-                            {
-                                System.IO.Stream responseContentStreamLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                                responseContentStreamLocalVar = new SignWell.Sdk.Resources.OwnedResponseStream(httpResponseMessageLocalVar, responseContentStreamLocalVar);
-                                apiResponseLocalVar = new GetCompletedPdfApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentStreamLocalVar, "/api/v1/documents/{id}/completed_pdf/", requestedAtLocalVar, _jsonSerializerOptions);
-
-                                break;
-                            }
                             default: {
                                 string responseContentLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStringAsync().ConfigureAwait(false);
                                 apiResponseLocalVar = new GetCompletedPdfApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentLocalVar, "/api/v1/documents/{id}/completed_pdf/", requestedAtLocalVar, _jsonSerializerOptions);
@@ -2030,13 +2017,7 @@ namespace SignWell.Sdk.Raw
                             foreach(TokenBase tokenBaseLocalVar in tokenBaseLocalVars)
                                 tokenBaseLocalVar.BeginRateLimit();
 
-                        if (apiResponseLocalVar.ContentStream is not null)
-                            responseToDisposeLocalVar = null;
                         return apiResponseLocalVar;
-                    }
-                    finally
-                    {
-                        responseToDisposeLocalVar?.Dispose();
                     }
                 }
             }
@@ -2105,11 +2086,9 @@ namespace SignWell.Sdk.Raw
             public SignWell.Sdk.Models.CompletedPdfResponse? Ok()
             {
                 // This logic may be modified with the AsModel.mustache template
-                if (!IsOk)
-                    return default;
-                if (ContentStream is not null)
-                    return new SignWell.Sdk.Models.CompletedPdfResponse(ContentStream);
-                return System.Text.Json.JsonSerializer.Deserialize<SignWell.Sdk.Models.CompletedPdfResponse>(RawContent, _jsonSerializerOptions);
+                return IsOk
+                    ? System.Text.Json.JsonSerializer.Deserialize<SignWell.Sdk.Models.CompletedPdfResponse>(RawContent, _jsonSerializerOptions)
+                    : default;
             }
 
             /// <summary>

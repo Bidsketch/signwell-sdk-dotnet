@@ -3834,12 +3834,12 @@ components:
       properties:
         name:
           description: File name
+          nullable: true
           type: string
         pages_number:
           description: Number of pages in the file
           type: integer
       required:
-      - name
       - pages_number
       type: object
     LabelInfo:

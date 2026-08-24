@@ -3695,12 +3695,12 @@ components:
       properties:
         name:
           type: string
+          nullable: true
           description: File name
         pages_number:
           type: integer
           description: Number of pages in the file
       required:
-      - name
       - pages_number
     LabelInfo:
       type: object

@@ -289,8 +289,6 @@ namespace SignWell.Sdk.Raw
                     httpRequestMessageLocalVar.RequestUri = uriBuilderLocalVar.Uri;
 
                     string[] acceptLocalVars = new string[] {
-                        "application/zip",
-                        "application/octet-stream",
                         "application/json"
                     };
 
@@ -302,22 +300,12 @@ namespace SignWell.Sdk.Raw
 
                     DateTime requestedAtLocalVar = DateTime.UtcNow;
 
-                    HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    HttpResponseMessage? responseToDisposeLocalVar = httpResponseMessageLocalVar;
-                    try
+                    using (HttpResponseMessage httpResponseMessageLocalVar = await HttpClient.SendAsync(httpRequestMessageLocalVar, cancellationToken).ConfigureAwait(false))
                     {
                         ILogger<GetNom151CertificateApiResponse> apiResponseLoggerLocalVar = LoggerFactory.CreateLogger<GetNom151CertificateApiResponse>();
                         GetNom151CertificateApiResponse apiResponseLocalVar;
 
                         switch ((int)httpResponseMessageLocalVar.StatusCode) {
-                            case (200) when (!urlOnly.IsSet || !urlOnly.Value) && (!objectOnly.IsSet || !objectOnly.Value):
-                            {
-                                System.IO.Stream responseContentStreamLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                                responseContentStreamLocalVar = new SignWell.Sdk.Resources.OwnedResponseStream(httpResponseMessageLocalVar, responseContentStreamLocalVar);
-                                apiResponseLocalVar = new GetNom151CertificateApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentStreamLocalVar, "/api/v1/documents/{id}/nom151_certificate/", requestedAtLocalVar, _jsonSerializerOptions);
-
-                                break;
-                            }
                             default: {
                                 string responseContentLocalVar = await httpResponseMessageLocalVar.Content.ReadAsStringAsync().ConfigureAwait(false);
                                 apiResponseLocalVar = new GetNom151CertificateApiResponse(apiResponseLoggerLocalVar, httpRequestMessageLocalVar, httpResponseMessageLocalVar, responseContentLocalVar, "/api/v1/documents/{id}/nom151_certificate/", requestedAtLocalVar, _jsonSerializerOptions);
@@ -334,13 +322,7 @@ namespace SignWell.Sdk.Raw
                             foreach(TokenBase tokenBaseLocalVar in tokenBaseLocalVars)
                                 tokenBaseLocalVar.BeginRateLimit();
 
-                        if (apiResponseLocalVar.ContentStream is not null)
-                            responseToDisposeLocalVar = null;
                         return apiResponseLocalVar;
-                    }
-                    finally
-                    {
-                        responseToDisposeLocalVar?.Dispose();
                     }
                 }
             }
@@ -409,7 +391,7 @@ namespace SignWell.Sdk.Raw
             public SignWell.Sdk.Models.Nom151UrlResponse? Ok()
             {
                 // This logic may be modified with the AsModel.mustache template
-                return IsOk && ContentStream is null
+                return IsOk
                     ? System.Text.Json.JsonSerializer.Deserialize<SignWell.Sdk.Models.Nom151UrlResponse>(RawContent, _jsonSerializerOptions)
                     : default;
             }

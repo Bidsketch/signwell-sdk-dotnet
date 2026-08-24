@@ -164,7 +164,7 @@ public static class SignWellServiceCollectionExtensions
                     client.BaseAddress = options.BaseUri;
                     client.Timeout = options.Timeout;
                     client.DefaultRequestHeaders.Remove("X-Api-Key");
-                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", SignWellClientOptions.UserAgent);
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
                 },
                 options.ConfigureHttpClientBuilder)
             .AddTokens(new ApiKeyToken(options.ApiKey, ClientUtils.ApiKeyHeader.X_Api_Key, string.Empty)));
@@ -176,7 +176,7 @@ public static class SignWellServiceCollectionExtensions
                 client.BaseAddress = options.BaseUri;
                 client.Timeout = options.Timeout;
                 client.DefaultRequestHeaders.Remove("X-Api-Key");
-                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", SignWellClientOptions.UserAgent);
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
             });
         options.ConfigureHttpClientBuilder?.Invoke(streaming);
         services.AddSingleton<ResponseModesClient>();

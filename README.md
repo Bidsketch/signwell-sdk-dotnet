@@ -144,29 +144,6 @@ var sent = await signWell.UpdateDocumentAsync(
     new UpdateDocumentAndSendRequest(subject: "Please sign"));
 ```
 
-## Convenience Workflows
-
-`SignWellClient` provides thin wrappers for common workflows while each
-resource keeps the complete generated API available through its `Raw` property:
-
-```csharp
-var account = await signWell.GetMeAsync();
-var document = await signWell.CreateDocumentAsync(documentRequest);
-var templateDocument = await signWell.CreateDocumentFromTemplateAsync(templateRequest);
-var sent = await signWell.SendDocumentAsync(draftDocumentId, sendRequest);
-await signWell.SendReminderAsync(documentId, reminderRequest);
-var template = await signWell.CreateTemplateAsync(createTemplateRequest);
-var updatedTemplate = await signWell.UpdateTemplateAsync(templateId, updateTemplateRequest);
-var bulkSend = await signWell.CreateBulkSendAsync(bulkSendRequest);
-var csvCheck = await signWell.ValidateBulkSendCsvAsync(csvRequest);
-```
-
-Recipient passcode authentication can be updated through the document resource:
-
-```csharp
-await signWell.Documents.UpdateAuthenticationAsync(documentId, authenticationRequest);
-```
-
 ## Binary And JSON Response Modes
 
 Endpoints that can return either a file or JSON have explicit methods, so
@@ -262,23 +239,6 @@ The in-memory replay store is intended for local development and single-process
 applications. Multi-instance production applications must provide a shared,
 atomic Redis or database implementation of `IWebhookReplayStore`.
 
-SignWell v1 authenticates the event type and Unix timestamp. Replay-aware
-verification therefore fails closed when two same-type events share the same
-authenticated timestamp and hash. Reconcile the affected document through the
-API when that rare collision occurs; do not derive replay keys from unsigned
-payload fields. A future signed delivery identifier can remove this limitation.
-
-## Examples
-
-The repository includes a package-consumption smoke project and a manual,
-test-mode live acceptance project under [`samples/`](samples/). The live
-acceptance project requires controlled fixture IDs and always attempts to
-delete documents it creates.
-
-## Documentation
-
-Generated API and model references are available in [`docs/`](docs/).
-
 ## Build
 
 ```bash
@@ -288,6 +248,8 @@ dotnet build SignWell.Sdk.sln --configuration Release --no-restore
 dotnet test SignWell.Sdk.sln --configuration Release --no-build
 dotnet pack src/SignWell.Sdk/SignWell.Sdk.csproj --configuration Release --no-build
 ```
+
+Generated API and model references are available in [`docs/`](docs/).
 
 ## License
 
