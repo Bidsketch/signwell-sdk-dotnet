@@ -111,8 +111,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="DocumentResponseFieldsInnerInnerValue" />
     /// </summary>
-    public class DocumentResponseFieldsInnerInnerValueJsonConverter : JsonConverter<DocumentResponseFieldsInnerInnerValue>
+    public partial class DocumentResponseFieldsInnerInnerValueJsonConverter : JsonConverter<DocumentResponseFieldsInnerInnerValue>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DocumentResponseFieldsInnerInnerValueJsonConverter" /> class.
+        /// </summary>
+        public DocumentResponseFieldsInnerInnerValueJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="DocumentResponseFieldsInnerInnerValue" />
         /// </summary>
@@ -138,7 +148,6 @@ public override DocumentResponseFieldsInnerInnerValue Read(ref Utf8JsonReader ut
         /// <param name="writer"></param>
         /// <param name="documentResponseFieldsInnerInnerValue"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
 public override void Write(Utf8JsonWriter writer, DocumentResponseFieldsInnerInnerValue documentResponseFieldsInnerInnerValue, JsonSerializerOptions jsonSerializerOptions)
 {
     if (documentResponseFieldsInnerInnerValue.String is not null)
@@ -157,7 +166,6 @@ public override void Write(Utf8JsonWriter writer, DocumentResponseFieldsInnerInn
         /// <param name="writer"></param>
         /// <param name="documentResponseFieldsInnerInnerValue"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, DocumentResponseFieldsInnerInnerValue documentResponseFieldsInnerInnerValue, JsonSerializerOptions jsonSerializerOptions)
         {
 

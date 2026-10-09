@@ -62,7 +62,7 @@ internal static class EmbeddedModelFactory
             RequireIdentity(r.Name, r.Email);
             return new RecipientsInner(
                 r.Id ?? (i + 1).ToString(CultureInfo.InvariantCulture),
-                r.Email,
+                email: r.Email,
                 name: r.Name,
                 passcode: Optional(SignWellValues.NormalizePasscode(r.Passcode)));
         }).ToList();
@@ -77,7 +77,7 @@ internal static class EmbeddedModelFactory
             RequireIdentity(r.Name, r.Email);
             return new TemplateRecipientsInner(
                 r.Id ?? (i + 1).ToString(CultureInfo.InvariantCulture),
-                r.Email,
+                email: r.Email,
                 name: r.Name,
                 placeholderName: Optional(r.PlaceholderName),
                 passcode: Optional(SignWellValues.NormalizePasscode(r.Passcode)));

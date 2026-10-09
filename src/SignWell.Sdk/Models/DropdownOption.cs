@@ -97,8 +97,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="DropdownOption" />
     /// </summary>
-    public class DropdownOptionJsonConverter : JsonConverter<DropdownOption>
+    public partial class DropdownOptionJsonConverter : JsonConverter<DropdownOption>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropdownOptionJsonConverter" /> class.
+        /// </summary>
+        public DropdownOptionJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="DropdownOption" />
         /// </summary>
@@ -174,7 +184,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="dropdownOption"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Write(Utf8JsonWriter writer, DropdownOption dropdownOption, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
@@ -189,7 +198,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="dropdownOption"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, DropdownOption dropdownOption, JsonSerializerOptions jsonSerializerOptions)
         {
 

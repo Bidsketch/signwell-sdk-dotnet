@@ -13,7 +13,7 @@ dotnet add package SignWell.Sdk --prerelease
 Or add a package reference directly:
 
 ```xml
-<PackageReference Include="SignWell.Sdk" Version="0.1.0-beta.1" />
+<PackageReference Include="SignWell.Sdk" Version="0.2.0-beta.1" />
 ```
 
 The package targets `netstandard2.0` and `net10.0`. The `netstandard2.0`
@@ -42,8 +42,8 @@ Console.WriteLine(document.Id);
 
 The SDK sends the API key in the `X-Api-Key` header and uses
 `https://www.signwell.com` by default. Test-mode documents are not legally
-binding and do not count toward API billing. SMS recipient delivery is not
-included; use email delivery and passcode authentication.
+binding and do not count toward API billing. SMS delivery fields are available
+for workspaces that have SMS enabled; phone numbers must use E.164 format.
 
 ## Dependency Injection
 

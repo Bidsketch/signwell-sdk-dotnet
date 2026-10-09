@@ -12,6 +12,8 @@ Name | Type | Description | Notes
 **Subject** | **string** |  | [optional] 
 **SendEmail** | **bool** |  | [optional] 
 **SendEmailDelay** | **int** |  | [optional] 
+**DeliveryMethod** | **string** | How the recipient is notified: email (default), sms, or email_and_sms. | [optional] 
+**Sms** | [**DocumentResponseRecipientsInnerSms**](DocumentResponseRecipientsInnerSms.md) |  | [optional] 
 **SigningOrder** | **int** |  | [optional] 
 **SigningUrl** | **string** |  | [optional] 
 **EmbeddedSigningUrl** | **string** |  | [optional] 
@@ -19,6 +21,7 @@ Name | Type | Description | Notes
 **BouncedDetails** | **string** |  | [optional] 
 **AttachmentRequests** | [**List&lt;AttachmentRequestInfo&gt;**](AttachmentRequestInfo.md) |  | [optional] 
 **Passcode** | **string** |  | [optional] 
+**PasscodeDelivery** | [**DocumentResponseRecipientsInnerPasscodeDelivery**](DocumentResponseRecipientsInnerPasscodeDelivery.md) |  | [optional] 
 **Status** | **string** |  | [optional] 
 **PlaceholderName** | **string** |  | [optional] 
 

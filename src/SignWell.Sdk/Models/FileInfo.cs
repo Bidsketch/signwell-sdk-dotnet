@@ -102,8 +102,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="FileInfo" />
     /// </summary>
-    public class FileInfoJsonConverter : JsonConverter<FileInfo>
+    public partial class FileInfoJsonConverter : JsonConverter<FileInfo>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileInfoJsonConverter" /> class.
+        /// </summary>
+        public FileInfoJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="FileInfo" />
         /// </summary>
@@ -152,10 +162,10 @@ namespace SignWell.Sdk.Models
             }
 
             if (!pagesNumber.IsSet)
-                throw new ArgumentException("Property is required for class FileInfo.", nameof(pagesNumber));
+                throw new JsonException("Property is required for class FileInfo: pages_number.");
 
             if (pagesNumber.IsSet && pagesNumber.Value == null)
-                throw new ArgumentNullException(nameof(pagesNumber), "Property is not nullable for class FileInfo.");
+                throw new JsonException("Property is not nullable for class FileInfo: pages_number.");
 
             return new FileInfo(pagesNumber.Value!.Value!, name);
         }
@@ -166,7 +176,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="fileInfo"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Write(Utf8JsonWriter writer, FileInfo fileInfo, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
@@ -181,7 +190,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="fileInfo"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, FileInfo fileInfo, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteNumber("pages_number", fileInfo.PagesNumber);

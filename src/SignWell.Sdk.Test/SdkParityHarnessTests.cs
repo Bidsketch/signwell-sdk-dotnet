@@ -18,6 +18,32 @@ namespace SignWell.Sdk.Test;
 public sealed class SdkParityHarnessTests
 {
     [Fact]
+    public async Task GetMeDeserializesUuidMembershipIds()
+    {
+        // Membership ids are AccountRole external ids, always UUIDs (Trello 2708, AC-04), so
+        // MeResponse.Id stays a Guid; only the user ids are plain strings (see the legacy test).
+        const string id = "2efeb26c-f151-4ff7-9341-81d5741f5e28";
+        const string relatedId = "b4905391-fd3b-402c-a8ca-b3201a5549c0";
+        using var client = Client((request, _) =>
+        {
+            Assert.Equal("/api/v1/me", request.RequestUri!.AbsolutePath);
+            return Task.FromResult(Json(HttpStatusCode.OK, $$"""
+                {
+                    "id":"{{id}}", "role":"owner",
+                    "user":{"id":"{{relatedId}}","name":"Test","email":"test@example.com"},
+                    "account":{"id":"{{relatedId}}","name":"Test","plan_tier":"free"},
+                    "workspace":{"id":"{{relatedId}}","name":"Test","plan_tier":"free"},
+                    "contact":{"id":"{{relatedId}}","name":"Test","email":"test@example.com"}
+                }
+                """));
+        });
+
+        var me = await client.GetMeAsync();
+
+        Assert.Equal(Guid.Parse(id), me.Id);
+    }
+
+    [Fact]
     public void RawClientsExposeAllOpenApiOperations()
     {
         var actual = new[]
@@ -626,6 +652,35 @@ public sealed class SdkParityHarnessTests
         await Assert.ThrowsAsync<WebhookReplayCapacityException>(async () =>
             await WebhookVerifier.VerifyOnceAsync(valid.RootElement, webhookId, full, TimeSpan.FromMinutes(5), now));
     }
+
+    [Fact]
+    public async Task GetMeDeserializesLegacyNumericUserIds()
+    {
+        // Users present at docsketch's Feb 2020 external_id backfill kept their AccountRole numeric id, so
+        // the API returns user ids such as "3" for them. The spec used to declare user.id and
+        // active_users[].id as format: uuid, which made this Guid-typed property throw on every legacy
+        // account (Bidsketch/docsketch#4774). Membership, account and contact ids are real UUIDs.
+        using var client = Client((_, _) => Task.FromResult(Json(HttpStatusCode.OK, LegacyMeResponse)));
+
+        var me = await client.GetMeAsync();
+
+        Assert.Equal("3", me.User.Id);
+        Assert.Equal("3", Assert.Single(me.Account.ActiveUsers!).Id);
+        Assert.Equal("3", Assert.Single(me.Workspace.ActiveUsers!).Id);
+        // Membership, account and contact ids keep format: uuid; these pin that only the user ids
+        // lost it, so dropping the format from the wrong line in the same schema block fails here.
+        Assert.Equal(Guid.Parse("3c1e4f50-6c2d-4c41-a793-e8e507ab9e77"), me.Id);
+        Assert.Equal(Guid.Parse("00d90639-dac7-4eb4-aa13-db2c3e87c874"), me.Account.Id);
+        Assert.Equal(Guid.Parse("264e865a-c78b-44a2-a4cb-5991b50db840"), me.Contact.Id);
+    }
+
+    private const string LegacyMeResponse = """
+        {"id":"3c1e4f50-6c2d-4c41-a793-e8e507ab9e77","role":"owner","archived":false
+        ,"user":{"id":"3","name":"Legacy Owner","email":"owner@legacy.example","has_google_registration":false,"first_name":"Legacy"}
+        ,"account":{"id":"00d90639-dac7-4eb4-aa13-db2c3e87c874","name":"Legacy LLC","plan_tier":"free","active_templates":0,"can_create_template":true,"can_create_tracking_document":true,"can_create_completion_document":true,"active_users":[{"id":"3","name":"Legacy Owner","email":"owner@legacy.example","has_google_registration":false}]}
+        ,"workspace":{"id":"00d90639-dac7-4eb4-aa13-db2c3e87c874","name":"Legacy LLC","plan_tier":"free","active_templates":0,"can_create_template":true,"can_create_tracking_document":true,"can_create_completion_document":true,"active_users":[{"id":"3","name":"Legacy Owner","email":"owner@legacy.example","has_google_registration":false}]}
+        ,"contact":{"id":"264e865a-c78b-44a2-a4cb-5991b50db840","email":"owner@legacy.example","name":"Legacy Owner","company_name":"Legacy LLC","phone_number":"970 470 3370","alt_phone_number":"(873) 602-9900","website":"https://legacy.example","initials":"LO","archived":false}}
+        """;
 
     private static SignWellClient Client(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> send) =>
         new(new SignWellClientOptions

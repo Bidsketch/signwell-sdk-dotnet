@@ -111,8 +111,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="TemplateFieldValuesInnerValue" />
     /// </summary>
-    public class TemplateFieldValuesInnerValueJsonConverter : JsonConverter<TemplateFieldValuesInnerValue>
+    public partial class TemplateFieldValuesInnerValueJsonConverter : JsonConverter<TemplateFieldValuesInnerValue>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TemplateFieldValuesInnerValueJsonConverter" /> class.
+        /// </summary>
+        public TemplateFieldValuesInnerValueJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="TemplateFieldValuesInnerValue" />
         /// </summary>
@@ -138,7 +148,6 @@ public override TemplateFieldValuesInnerValue Read(ref Utf8JsonReader utf8JsonRe
         /// <param name="writer"></param>
         /// <param name="templateFieldValuesInnerValue"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
 public override void Write(Utf8JsonWriter writer, TemplateFieldValuesInnerValue templateFieldValuesInnerValue, JsonSerializerOptions jsonSerializerOptions)
 {
     if (templateFieldValuesInnerValue.String is not null)
@@ -157,7 +166,6 @@ public override void Write(Utf8JsonWriter writer, TemplateFieldValuesInnerValue 
         /// <param name="writer"></param>
         /// <param name="templateFieldValuesInnerValue"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, TemplateFieldValuesInnerValue templateFieldValuesInnerValue, JsonSerializerOptions jsonSerializerOptions)
         {
 

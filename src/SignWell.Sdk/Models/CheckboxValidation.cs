@@ -193,6 +193,9 @@ namespace SignWell.Sdk.Models
         /// <returns></returns>
         public override CheckboxValidation? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+
             string? rawValue = reader.GetString();
 
             CheckboxValidation? result = rawValue == null
@@ -213,7 +216,10 @@ namespace SignWell.Sdk.Models
         /// <param name="options"></param>
         public override void Write(Utf8JsonWriter writer, CheckboxValidation? checkboxValidation, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(checkboxValidation.HasValue ? CheckboxValidationValueConverter.ToJsonValue(checkboxValidation.Value).ToString() : "null");
+            if (checkboxValidation.HasValue)
+                writer.WriteStringValue(CheckboxValidationValueConverter.ToJsonValue(checkboxValidation.Value).ToString());
+            else
+                writer.WriteNullValue();
         }
     }
 }
