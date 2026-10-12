@@ -14,6 +14,8 @@ permissions:
 
 jobs:
   analyze:
+    # Match Java's policy: private prerelease repositories do not have Code Security enabled.
+    if: github.event.repository.visibility == 'public'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
