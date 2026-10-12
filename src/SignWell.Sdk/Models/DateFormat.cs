@@ -93,7 +93,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return DateFormat.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type DateFormat: '{value}'");
+            return DateFormat.UnknownDefaultOpenApi;
         }
 
         /// <summary>

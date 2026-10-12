@@ -161,7 +161,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ConditionalRulesModeEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type ConditionalRulesModeEnum: '{value}'");
+            return ConditionalRulesModeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ConditionalRulesModeEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return ConditionalRulesModeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>

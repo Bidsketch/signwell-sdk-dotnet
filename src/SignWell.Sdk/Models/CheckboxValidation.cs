@@ -85,7 +85,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return CheckboxValidation.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type CheckboxValidation: '{value}'");
+            return CheckboxValidation.UnknownDefaultOpenApi;
         }
 
         /// <summary>

@@ -173,7 +173,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return FieldType.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type FieldType: '{value}'");
+            return FieldType.UnknownDefaultOpenApi;
         }
 
         /// <summary>

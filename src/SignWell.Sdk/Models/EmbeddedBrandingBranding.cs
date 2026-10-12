@@ -83,7 +83,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return CompanyLogoEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type CompanyLogoEnum: '{value}'");
+            return CompanyLogoEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return CompanyLogoEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return CompanyLogoEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>

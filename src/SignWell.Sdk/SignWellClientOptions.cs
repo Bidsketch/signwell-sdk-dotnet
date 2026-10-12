@@ -19,6 +19,9 @@ public sealed class SignWellClientOptions
 
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
 
+    /// <summary>Retries after an explicit HTTP 429 response. Set to zero to disable.</summary>
+    public int MaxRateLimitRetries { get; set; } = 2;
+
     public Action<IHttpClientBuilder>? ConfigureHttpClientBuilder { get; set; }
 
     internal void Validate()
@@ -27,6 +30,8 @@ public sealed class SignWellClientOptions
             throw new ArgumentException("A nonblank API key is required.", nameof(ApiKey));
         if (Timeout <= TimeSpan.Zero && Timeout != System.Threading.Timeout.InfiniteTimeSpan)
             throw new ArgumentOutOfRangeException(nameof(Timeout), "Timeout must be positive or infinite.");
+        if (MaxRateLimitRetries < 0 || MaxRateLimitRetries > 10)
+            throw new ArgumentOutOfRangeException(nameof(MaxRateLimitRetries), "Rate limit retries must be between zero and ten.");
 
         BaseUri = NormalizeBaseUri(BaseUri);
     }

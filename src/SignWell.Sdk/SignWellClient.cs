@@ -178,6 +178,7 @@ public static class SignWellServiceCollectionExtensions
                 client.DefaultRequestHeaders.Remove("X-Api-Key");
                 client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", SignWellClientOptions.UserAgent);
             });
+        streaming.AddHttpMessageHandler(() => new RateLimitRetryHandler(options.MaxRateLimitRetries));
         options.ConfigureHttpClientBuilder?.Invoke(streaming);
         services.AddSingleton<ResponseModesClient>();
     }

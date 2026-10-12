@@ -490,6 +490,9 @@ public sealed class SdkParityHarnessTests
         var boolean = JsonSerializer.Deserialize<DocumentResponseFieldsInnerInnerValue>("true", options)!;
         Assert.True(boolean.Bool);
         Assert.Equal("true", JsonSerializer.Serialize(boolean, options));
+        var uncheckedValue = JsonSerializer.Deserialize<DocumentResponseFieldsInnerInnerValue>("false", options)!;
+        Assert.False(uncheckedValue.Bool);
+        Assert.Equal("false", JsonSerializer.Serialize(uncheckedValue, options));
         var number = JsonSerializer.Deserialize<DocumentResponseFieldsInnerInnerValue>("12.5", options)!;
         Assert.Equal(12.5m, number.Decimal);
         Assert.Equal("12.5", JsonSerializer.Serialize(number, options));
@@ -688,6 +691,116 @@ public sealed class SdkParityHarnessTests
             ApiKey = "test-key",
             ConfigureHttpClientBuilder = builder => builder.ConfigurePrimaryHttpMessageHandler(() => new DelegateHandler(send))
         });
+
+    [Fact]
+    public async Task RateLimitRetriesReplayJsonRequestsAndThenReturnSuccess()
+    {
+        var bodies = new List<string>();
+        using var client = Client(async (request, cancellationToken) =>
+        {
+            bodies.Add(await request.Content!.ReadAsStringAsync(cancellationToken));
+            if (bodies.Count == 1)
+            {
+                var limited = Json((HttpStatusCode)429, """{"message":"limited"}""");
+                limited.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.Zero);
+                return limited;
+            }
+            return Json(HttpStatusCode.Created, """{"test_mode":true,"id":"3c1e4f50-6c2d-4c41-a793-e8e507ab9e77"}""");
+        });
+        var recipient = new RecipientsInner("1", "jane@example.com", "Jane")
+        {
+            PasscodeDelivery = new RecipientsInnerPasscodeDelivery { Enabled = true, Methods = [RecipientsInnerPasscodeDelivery.MethodsEnum.Email] }
+        };
+        var request = new DocumentRequest([], [recipient])
+        {
+            Fields = [[new FieldsInnerInner(1, 2, 1, "1", FieldType.Dropdown) { Options = [new DropdownOption("A"), new DropdownOption(new DetailedOption("B"))] }]]
+        };
+        var result = await client.CreateDocumentAsync(request);
+        Assert.Equal(Guid.Parse("3c1e4f50-6c2d-4c41-a793-e8e507ab9e77"), result.Id);
+        Assert.Equal(2, bodies.Count);
+        Assert.Equal(bodies[0], bodies[1]);
+        using var body = JsonDocument.Parse(bodies[1]);
+        Assert.Equal("email", body.RootElement.GetProperty("recipients")[0].GetProperty("passcode_delivery").GetProperty("methods")[0].GetString());
+        Assert.Equal("A", body.RootElement.GetProperty("fields")[0][0].GetProperty("options")[0].GetString());
+        Assert.Equal("B", body.RootElement.GetProperty("fields")[0][0].GetProperty("options")[1].GetProperty("name").GetString());
+    }
+
+    [Fact]
+    public async Task RateLimitRetriesStopAtTheLimitAndCanBeDisabled()
+    {
+        foreach (var retries in new[] { 0, 2 })
+        {
+            var attempts = 0;
+            using var client = new SignWellClient(new SignWellClientOptions
+            {
+                ApiKey = "test-key",
+                MaxRateLimitRetries = retries,
+                ConfigureHttpClientBuilder = builder => builder.ConfigurePrimaryHttpMessageHandler(() => new DelegateHandler((_, _) =>
+                {
+                    attempts++;
+                    var limited = Json((HttpStatusCode)429, """{"message":"limited"}""");
+                    limited.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.Zero);
+                    return Task.FromResult(limited);
+                }))
+            });
+            var error = await Assert.ThrowsAsync<RateLimitException>(() => client.Documents.GetAsync(Guid.NewGuid()));
+            Assert.Equal((HttpStatusCode)429, error.StatusCode);
+            Assert.Equal(retries + 1, attempts);
+        }
+    }
+
+    [Fact]
+    public async Task RateLimitRetryWaitCanBeCancelledWithoutAnotherRequest()
+    {
+        var attempts = 0;
+        var limited = Json((HttpStatusCode)429, "{}");
+        limited.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(30));
+        var requested = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var client = Client((_, _) => { attempts++; requested.TrySetResult(); return Task.FromResult(limited); });
+        using var cancellation = new CancellationTokenSource();
+        var operation = client.Documents.GetAsync(Guid.NewGuid(), cancellation.Token);
+        await requested.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        cancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => operation);
+        Assert.Equal(1, attempts);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => limited.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public void RateLimitDelaysHonorHeadersAndOtherwiseBackOff()
+    {
+        var now = DateTimeOffset.UtcNow;
+        using var response = Json((HttpStatusCode)429, "{}");
+        Assert.Equal(TimeSpan.FromSeconds(1), RateLimitRetryHandler.RetryDelay(response, 0, now));
+        Assert.Equal(TimeSpan.FromSeconds(2), RateLimitRetryHandler.RetryDelay(response, 1, now));
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(now.AddSeconds(7));
+        Assert.Equal(TimeSpan.FromSeconds(7), RateLimitRetryHandler.RetryDelay(response, 0, now));
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(120));
+        Assert.Null(RateLimitRetryHandler.RetryDelay(response, 0, now));
+    }
+
+    [Fact]
+    public async Task RateLimitRetriesApplyToDownloadsAndDoNotRetryServerErrors()
+    {
+        var attempts = 0;
+        using var client = Client((_, _) =>
+        {
+            attempts++;
+            if (attempts == 1)
+            {
+                var limited = Json((HttpStatusCode)429, "{}");
+                limited.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.Zero);
+                return Task.FromResult(limited);
+            }
+            return Task.FromResult(Binary("application/pdf", "pdf-content"));
+        });
+        using var downloaded = await client.GetCompletedPdfStreamAsync(Guid.NewGuid());
+        Assert.Equal(2, attempts);
+        attempts = 0;
+        using var failing = Client((_, _) => { attempts++; return Task.FromResult(Json(HttpStatusCode.InternalServerError, "{}")); });
+        await Assert.ThrowsAsync<InternalServerException>(() => failing.Documents.GetAsync(Guid.NewGuid()));
+        Assert.Equal(1, attempts);
+    }
 
     private static ResponseModesClient Modes(HttpClient client) => new(
         new SingleClientFactory(client),

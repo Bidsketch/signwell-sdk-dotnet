@@ -58,10 +58,14 @@ builder.Services.AddSignWell(options =>
 });
 ```
 
-Resolve `ISignWellClient` from the service provider. Use
-`SignWellClientOptions.ConfigureHttpClientBuilder` to add application-specific
-resilience policies. Automatic retries are disabled because retry safety
-depends on endpoint idempotency.
+Resolve `ISignWellClient` from the service provider. The client retries explicit
+HTTP 429 responses up to two times, including requests with JSON bodies and
+downloads. It honors `Retry-After` seconds or dates, or waits one then two seconds
+when the header is absent or invalid. A requested wait longer than 60 seconds
+returns the rate-limit error immediately. Cancellation and the configured HTTP
+timeout apply to retry waits. Network failures and other status codes are not
+retried. Set `SignWellClientOptions.MaxRateLimitRetries = 0` to disable retries.
+Use `ConfigureHttpClientBuilder` to add application-specific policies.
 
 ## Resources, Models, And Errors
 

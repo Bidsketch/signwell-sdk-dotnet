@@ -69,7 +69,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return FileFormat.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type FileFormat: '{value}'");
+            return FileFormat.UnknownDefaultOpenApi;
         }
 
         /// <summary>

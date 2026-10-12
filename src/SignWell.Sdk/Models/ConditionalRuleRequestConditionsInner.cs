@@ -107,7 +107,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ConditionTypeEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type ConditionTypeEnum: '{value}'");
+            return ConditionTypeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ConditionTypeEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return ConditionTypeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return StatusEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type StatusEnum: '{value}'");
+            return StatusEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return StatusEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return StatusEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return JoinOperatorEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type JoinOperatorEnum: '{value}'");
+            return JoinOperatorEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return JoinOperatorEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return JoinOperatorEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>

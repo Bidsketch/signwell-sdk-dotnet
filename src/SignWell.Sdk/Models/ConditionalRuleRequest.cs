@@ -101,7 +101,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ActionTypeEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type ActionTypeEnum: '{value}'");
+            return ActionTypeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return ActionTypeEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return ActionTypeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>

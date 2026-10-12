@@ -165,7 +165,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return CfrPart11SigningModeEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type CfrPart11SigningModeEnum: '{value}'");
+            return CfrPart11SigningModeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return CfrPart11SigningModeEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return CfrPart11SigningModeEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>

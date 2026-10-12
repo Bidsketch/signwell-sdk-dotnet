@@ -149,7 +149,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return TextValidation.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type TextValidation: '{value}'");
+            return TextValidation.UnknownDefaultOpenApi;
         }
 
         /// <summary>
