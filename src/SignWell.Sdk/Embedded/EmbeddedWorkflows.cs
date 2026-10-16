@@ -85,7 +85,7 @@ public sealed class EmbeddedWorkflows
     public static IReadOnlyDictionary<string, string> SigningUrls(DocumentResponse response) =>
         (response.Recipients ?? new List<DocumentResponseRecipientsInner>())
             .Where(r => !string.IsNullOrWhiteSpace(r.Email) && !string.IsNullOrWhiteSpace(r.EmbeddedSigningUrl))
-            .ToDictionary(r => r.Email, r => r.EmbeddedSigningUrl!, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(r => r.Email!, r => r.EmbeddedSigningUrl!, StringComparer.OrdinalIgnoreCase);
 
     public static string? SigningUrl(DocumentFromTemplateResponse response, int recipientIndex = 0) =>
         response.Recipients is { } recipients && recipientIndex >= 0 && recipientIndex < recipients.Count
@@ -95,5 +95,5 @@ public sealed class EmbeddedWorkflows
     public static IReadOnlyDictionary<string, string> SigningUrls(DocumentFromTemplateResponse response) =>
         (response.Recipients ?? new List<DocumentFromTemplateResponseRecipientsInner>())
             .Where(r => !string.IsNullOrWhiteSpace(r.Email) && !string.IsNullOrWhiteSpace(r.EmbeddedSigningUrl))
-            .ToDictionary(r => r.Email, r => r.EmbeddedSigningUrl!, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(r => r.Email!, r => r.EmbeddedSigningUrl!, StringComparer.OrdinalIgnoreCase);
 }

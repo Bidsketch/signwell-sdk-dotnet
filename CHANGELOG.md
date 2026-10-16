@@ -21,6 +21,9 @@
 
 ### Fixed
 
+- Accept missing or null email in SMS-only document and template-document recipient responses while preserving email-first constructor calls.
+- Point repository metadata and future SDK syncs to `Bidsketch/signwell-sdk-csharp`.
+
 - Serialize dropdown options as their string or detailed object values and read both forms correctly.
 - Serialize passcode delivery methods with API wire values such as `email`; handle unknown standalone and nested enum values consistently.
 - Preserve the original email-first recipient and template-recipient constructor signatures, including all optional positional arguments.

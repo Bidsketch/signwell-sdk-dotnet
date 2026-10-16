@@ -15,6 +15,40 @@ public sealed class SerializationRegressionTests
         return options;
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(",\"email\":null")]
+    [InlineData(",\"email\":\"jane@example.com\"")]
+    public void SmsRecipientResponsesAcceptMissingNullAndPresentEmail(string emailProperty)
+    {
+        var options = Options();
+        var json = "{\"name\":\"Jane\",\"delivery_method\":\"sms\"" + emailProperty + "}";
+        Type[] types = [typeof(DocumentResponseRecipientsInner), typeof(DocumentFromTemplateResponseRecipientsInner)];
+        foreach (var type in types)
+        {
+            var recipient = JsonSerializer.Deserialize(json, type, options)!;
+            using var body = JsonDocument.Parse(JsonSerializer.Serialize(recipient, type, options));
+            Assert.Equal("sms", body.RootElement.GetProperty("delivery_method").GetString());
+            if (emailProperty.Length == 0)
+                Assert.False(body.RootElement.TryGetProperty("email", out _));
+            else
+                Assert.Equal(emailProperty.Contains("jane@example.com") ? "jane@example.com" : null,
+                    body.RootElement.GetProperty("email").GetString());
+        }
+    }
+
+    [Fact]
+    public void LegacyResponseRecipientConstructorsKeepEmailBeforeId()
+    {
+        var recipient = new DocumentResponseRecipientsInner("Jane", "jane@example.com", "recipient-id");
+        Assert.Equal("jane@example.com", recipient.Email);
+        Assert.Equal("recipient-id", recipient.Id);
+        var template = new DocumentFromTemplateResponseRecipientsInner("jane@example.com", "recipient-id", "Jane");
+        Assert.Equal("jane@example.com", template.Email);
+        Assert.Equal("recipient-id", template.Id);
+        Assert.Equal("Jane", template.Name);
+    }
+
     [Fact]
     public void DropdownFieldsRoundTripStringAndDetailedOptions()
     {

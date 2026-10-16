@@ -34,9 +34,9 @@ namespace SignWell.Sdk.Models
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentFromTemplateResponseRecipientsInner" /> class.
         /// </summary>
-        /// <param name="email">email</param>
         /// <param name="id">id</param>
         /// <param name="name">name</param>
+        /// <param name="email">email</param>
         /// <param name="role">role</param>
         /// <param name="message">message</param>
         /// <param name="subject">subject</param>
@@ -55,11 +55,11 @@ namespace SignWell.Sdk.Models
         /// <param name="status">status</param>
         /// <param name="placeholderName">placeholderName</param>
         [JsonConstructor]
-        public DocumentFromTemplateResponseRecipientsInner(string email, Option<string?> id = default, Option<string?> name = default, Option<string?> role = default, Option<string?> message = default, Option<string?> subject = default, Option<bool?> sendEmail = default, Option<int?> sendEmailDelay = default, Option<DeliveryMethodEnum?> deliveryMethod = default, Option<DocumentResponseRecipientsInnerSms?> sms = default, Option<int?> signingOrder = default, Option<string?> signingUrl = default, Option<string?> embeddedSigningUrl = default, Option<bool?> bounced = default, Option<string?> bouncedDetails = default, Option<List<AttachmentRequestInfo>?> attachmentRequests = default, Option<string?> passcode = default, Option<DocumentResponseRecipientsInnerPasscodeDelivery?> passcodeDelivery = default, Option<string?> status = default, Option<string?> placeholderName = default)
+        public DocumentFromTemplateResponseRecipientsInner(Option<string?> id = default, Option<string?> name = default, Option<string?> email = default, Option<string?> role = default, Option<string?> message = default, Option<string?> subject = default, Option<bool?> sendEmail = default, Option<int?> sendEmailDelay = default, Option<DeliveryMethodEnum?> deliveryMethod = default, Option<DocumentResponseRecipientsInnerSms?> sms = default, Option<int?> signingOrder = default, Option<string?> signingUrl = default, Option<string?> embeddedSigningUrl = default, Option<bool?> bounced = default, Option<string?> bouncedDetails = default, Option<List<AttachmentRequestInfo>?> attachmentRequests = default, Option<string?> passcode = default, Option<DocumentResponseRecipientsInnerPasscodeDelivery?> passcodeDelivery = default, Option<string?> status = default, Option<string?> placeholderName = default)
         {
-            Email = email;
             IdOption = id;
             NameOption = name;
+            EmailOption = email;
             RoleOption = role;
             MessageOption = message;
             SubjectOption = subject;
@@ -192,12 +192,6 @@ namespace SignWell.Sdk.Models
         public DeliveryMethodEnum? DeliveryMethod { get { return this.DeliveryMethodOption.Value; } set { this.DeliveryMethodOption = new Option<DeliveryMethodEnum?>(value); } }
 
         /// <summary>
-        /// Gets or Sets Email
-        /// </summary>
-        [JsonPropertyName("email")]
-        public string Email { get; set; }
-
-        /// <summary>
         /// Used to track the state of Id
         /// </summary>
         [JsonIgnore]
@@ -222,6 +216,19 @@ namespace SignWell.Sdk.Models
         /// </summary>
         [JsonPropertyName("name")]
         public string? Name { get { return this.NameOption.Value; } set { this.NameOption = new Option<string?>(value); } }
+
+        /// <summary>
+        /// Used to track the state of Email
+        /// </summary>
+        [JsonIgnore]
+        [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public Option<string?> EmailOption { get; private set; }
+
+        /// <summary>
+        /// Gets or Sets Email
+        /// </summary>
+        [JsonPropertyName("email")]
+        public string? Email { get { return this.EmailOption.Value; } set { this.EmailOption = new Option<string?>(value); } }
 
         /// <summary>
         /// Used to track the state of Role
@@ -445,9 +452,9 @@ namespace SignWell.Sdk.Models
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("class DocumentFromTemplateResponseRecipientsInner {\n");
-            sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Role: ").Append(Role).Append("\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
             sb.Append("  Subject: ").Append(Subject).Append("\n");
@@ -513,9 +520,9 @@ namespace SignWell.Sdk.Models
 
             JsonTokenType startingTokenType = utf8JsonReader.TokenType;
 
-            Option<string?> email = default;
             Option<string?> id = default;
             Option<string?> name = default;
+            Option<string?> email = default;
             Option<string?> role = default;
             Option<string?> message = default;
             Option<string?> subject = default;
@@ -549,14 +556,14 @@ namespace SignWell.Sdk.Models
 
                     switch (localVarJsonPropertyName)
                     {
-                        case "email":
-                            email = new Option<string?>(utf8JsonReader.GetString()!);
-                            break;
                         case "id":
                             id = new Option<string?>(utf8JsonReader.GetString()!);
                             break;
                         case "name":
                             name = new Option<string?>(utf8JsonReader.GetString()!);
+                            break;
+                        case "email":
+                            email = new Option<string?>(utf8JsonReader.GetString());
                             break;
                         case "role":
                             role = new Option<string?>(utf8JsonReader.GetString()!);
@@ -622,13 +629,7 @@ namespace SignWell.Sdk.Models
                 }
             }
 
-            if (!email.IsSet)
-                throw new JsonException("Property is required for class DocumentFromTemplateResponseRecipientsInner: email.");
-
-            if (email.IsSet && email.Value == null)
-                throw new JsonException("Property is not nullable for class DocumentFromTemplateResponseRecipientsInner: email.");
-
-            return new DocumentFromTemplateResponseRecipientsInner(email.Value!, id, name, role, message, subject, sendEmail, sendEmailDelay, deliveryMethod, sms, signingOrder, signingUrl, embeddedSigningUrl, bounced, bouncedDetails, attachmentRequests, passcode, passcodeDelivery, status, placeholderName);
+            return new DocumentFromTemplateResponseRecipientsInner(id, name, email, role, message, subject, sendEmail, sendEmailDelay, deliveryMethod, sms, signingOrder, signingUrl, embeddedSigningUrl, bounced, bouncedDetails, attachmentRequests, passcode, passcodeDelivery, status, placeholderName);
         }
 
         /// <summary>
@@ -683,13 +684,17 @@ namespace SignWell.Sdk.Models
             if (documentFromTemplateResponseRecipientsInner.PlaceholderNameOption.IsSet && documentFromTemplateResponseRecipientsInner.PlaceholderName == null)
                 throw new JsonException("Cannot write null property DocumentFromTemplateResponseRecipientsInner.PlaceholderName to non-nullable JSON property 'placeholder_name'.");
 
-            writer.WriteString("email", documentFromTemplateResponseRecipientsInner.Email);
-
             if (documentFromTemplateResponseRecipientsInner.IdOption.IsSet)
                 writer.WriteString("id", documentFromTemplateResponseRecipientsInner.Id);
 
             if (documentFromTemplateResponseRecipientsInner.NameOption.IsSet)
                 writer.WriteString("name", documentFromTemplateResponseRecipientsInner.Name);
+
+            if (documentFromTemplateResponseRecipientsInner.EmailOption.IsSet)
+                if (documentFromTemplateResponseRecipientsInner.EmailOption.Value != null)
+                    writer.WriteString("email", documentFromTemplateResponseRecipientsInner.Email);
+                else
+                    writer.WriteNull("email");
 
             if (documentFromTemplateResponseRecipientsInner.RoleOption.IsSet)
                 writer.WriteString("role", documentFromTemplateResponseRecipientsInner.Role);

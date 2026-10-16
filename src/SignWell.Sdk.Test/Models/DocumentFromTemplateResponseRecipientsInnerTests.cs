@@ -55,15 +55,6 @@ namespace SignWell.Sdk.Test.Model
         }
 
         /// <summary>
-        /// Test the property 'Email'
-        /// </summary>
-        [Fact]
-        public void EmailTest()
-        {
-            // TODO unit test for the property 'Email'
-        }
-
-        /// <summary>
         /// Test the property 'Id'
         /// </summary>
         [Fact]
@@ -79,6 +70,15 @@ namespace SignWell.Sdk.Test.Model
         public void NameTest()
         {
             // TODO unit test for the property 'Name'
+        }
+
+        /// <summary>
+        /// Test the property 'Email'
+        /// </summary>
+        [Fact]
+        public void EmailTest()
+        {
+            // TODO unit test for the property 'Email'
         }
 
         /// <summary>

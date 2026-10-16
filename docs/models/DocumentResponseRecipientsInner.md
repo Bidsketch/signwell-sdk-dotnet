@@ -5,8 +5,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Name** | **string** |  | 
-**Email** | **string** |  | 
 **Id** | **string** |  | [optional] 
+**Email** | **string** |  | [optional] 
 **Body** | **string** |  | [optional] 
 **Message** | **string** |  | [optional] 
 **Subject** | **string** |  | [optional] 

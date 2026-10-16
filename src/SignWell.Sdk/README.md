@@ -6,7 +6,7 @@ Create a config.yaml file similar to what is below, then run the following power
 
 ```yaml
 generatorName: csharp
-inputSpec: /Users/zero/Documents/git/signwell/signwell-sdk-generator/.cache/prepared/csharp-openapi.yaml
+inputSpec: /private/tmp/signwell-review-generator/.cache/prepared/csharp-openapi.yaml
 outputDir: out
 
 # https://openapi-generator.tech/docs/generators/csharp

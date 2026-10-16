@@ -4,9 +4,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Email** | **string** |  | 
 **Id** | **string** |  | [optional] 
 **Name** | **string** |  | [optional] 
+**Email** | **string** |  | [optional] 
 **Role** | **string** |  | [optional] 
 **Message** | **string** |  | [optional] 
 **Subject** | **string** |  | [optional] 
