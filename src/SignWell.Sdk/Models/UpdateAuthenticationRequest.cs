@@ -85,8 +85,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="UpdateAuthenticationRequest" />
     /// </summary>
-    public class UpdateAuthenticationRequestJsonConverter : JsonConverter<UpdateAuthenticationRequest>
+    public partial class UpdateAuthenticationRequestJsonConverter : JsonConverter<UpdateAuthenticationRequest>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateAuthenticationRequestJsonConverter" /> class.
+        /// </summary>
+        public UpdateAuthenticationRequestJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="UpdateAuthenticationRequest" />
         /// </summary>
@@ -131,10 +141,10 @@ namespace SignWell.Sdk.Models
             }
 
             if (!recipients.IsSet)
-                throw new ArgumentException("Property is required for class UpdateAuthenticationRequest.", nameof(recipients));
+                throw new JsonException("Property is required for class UpdateAuthenticationRequest: recipients.");
 
             if (recipients.IsSet && recipients.Value == null)
-                throw new ArgumentNullException(nameof(recipients), "Property is not nullable for class UpdateAuthenticationRequest.");
+                throw new JsonException("Property is not nullable for class UpdateAuthenticationRequest: recipients.");
 
             return new UpdateAuthenticationRequest(recipients.Value!);
         }
@@ -145,7 +155,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="updateAuthenticationRequest"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Write(Utf8JsonWriter writer, UpdateAuthenticationRequest updateAuthenticationRequest, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
@@ -160,12 +169,8 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="updateAuthenticationRequest"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, UpdateAuthenticationRequest updateAuthenticationRequest, JsonSerializerOptions jsonSerializerOptions)
         {
-            if (updateAuthenticationRequest.Recipients == null)
-                throw new ArgumentNullException(nameof(updateAuthenticationRequest.Recipients), "Property is required for class UpdateAuthenticationRequest.");
-
             writer.WritePropertyName("recipients");
             JsonSerializer.Serialize(writer, updateAuthenticationRequest.Recipients, jsonSerializerOptions);
         }

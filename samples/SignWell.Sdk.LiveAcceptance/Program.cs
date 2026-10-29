@@ -51,7 +51,7 @@ try
 
     var sent = await client.CreateDocumentAsync(new DocumentRequest(
         [new FilesInner("fixture.pdf", fileUrl: fixtureFileUrl)],
-        [new RecipientsInner("1", recipientEmail, name: "SDK Acceptance")],
+        [new RecipientsInner("1", email: recipientEmail, name: "SDK Acceptance")],
         testMode: true,
         name: ".NET SDK live acceptance draft",
         draft: true,

@@ -44,8 +44,8 @@ Creates a bulk send, and it validates the CSV file before creating the bulk send
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **201** | successful |  -  |
-| **422** | unprocessable entity |  -  |
 | **401** | unauthorized |  -  |
+| **422** | unprocessable entity |  -  |
 | **429** | rate limit exceeded |  -  |
 
 [[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)
@@ -244,8 +244,8 @@ Validates a Bulk Send CSV file before creating the Bulk Send. It will check the 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | successful |  -  |
-| **422** | unprocessable entity |  -  |
 | **401** | unauthorized |  -  |
+| **422** | unprocessable entity |  -  |
 | **429** | rate limit exceeded |  -  |
 
 [[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)

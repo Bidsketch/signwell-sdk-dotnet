@@ -27,16 +27,16 @@ using SignWell.Sdk.Client;
 namespace SignWell.Sdk.Models
 {
     /// <summary>
-    /// Passcode delivery settings.
+    /// Passcode delivery settings. Always on for 21 CFR Part 11 documents and cannot be disabled.
     /// </summary>
     public partial class PasscodeDelivery : IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PasscodeDelivery" /> class.
         /// </summary>
-        /// <param name="enabled">Enable or disable passcode delivery.</param>
+        /// <param name="enabled">Enable or disable passcode delivery. Cannot be set to &#x60;false&#x60; on a 21 CFR Part 11 document: it returns a 422.</param>
         /// <param name="methods">Delivery methods. Defaults to [\&quot;email\&quot;].</param>
-        /// <param name="expireAfterAccess">Clear passcode after successful authentication.</param>
+        /// <param name="expireAfterAccess">Clear passcode after successful authentication. If passcode_delivery is also enabled, a new passcode is auto-generated on the next send request. Otherwise the recipient will no longer need a passcode.</param>
         [JsonConstructor]
         public PasscodeDelivery(Option<bool?> enabled = default, Option<List<PasscodeDelivery.MethodsEnum>?> methods = default, Option<bool?> expireAfterAccess = default)
         {
@@ -78,7 +78,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return MethodsEnum.UnknownDefaultOpenApi;
 
-            throw new NotImplementedException($"Could not convert value to type MethodsEnum: '{value}'");
+            return MethodsEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace SignWell.Sdk.Models
             if (value.Equals("unknown_default_open_api"))
                 return MethodsEnum.UnknownDefaultOpenApi;
 
-            return null;
+            return MethodsEnum.UnknownDefaultOpenApi;
         }
 
         /// <summary>
@@ -122,9 +122,9 @@ namespace SignWell.Sdk.Models
         public Option<bool?> EnabledOption { get; private set; }
 
         /// <summary>
-        /// Enable or disable passcode delivery.
+        /// Enable or disable passcode delivery. Cannot be set to &#x60;false&#x60; on a 21 CFR Part 11 document: it returns a 422.
         /// </summary>
-        /// <value>Enable or disable passcode delivery.</value>
+        /// <value>Enable or disable passcode delivery. Cannot be set to &#x60;false&#x60; on a 21 CFR Part 11 document: it returns a 422.</value>
         [JsonPropertyName("enabled")]
         public bool? Enabled { get { return this.EnabledOption.Value; } set { this.EnabledOption = new Option<bool?>(value); } }
 
@@ -150,9 +150,9 @@ namespace SignWell.Sdk.Models
         public Option<bool?> ExpireAfterAccessOption { get; private set; }
 
         /// <summary>
-        /// Clear passcode after successful authentication.
+        /// Clear passcode after successful authentication. If passcode_delivery is also enabled, a new passcode is auto-generated on the next send request. Otherwise the recipient will no longer need a passcode.
         /// </summary>
-        /// <value>Clear passcode after successful authentication.</value>
+        /// <value>Clear passcode after successful authentication. If passcode_delivery is also enabled, a new passcode is auto-generated on the next send request. Otherwise the recipient will no longer need a passcode.</value>
         [JsonPropertyName("expire_after_access")]
         public bool? ExpireAfterAccess { get { return this.ExpireAfterAccessOption.Value; } set { this.ExpireAfterAccessOption = new Option<bool?>(value); } }
 
@@ -192,8 +192,18 @@ namespace SignWell.Sdk.Models
     /// <summary>
     /// A Json converter for type <see cref="PasscodeDelivery" />
     /// </summary>
-    public class PasscodeDeliveryJsonConverter : JsonConverter<PasscodeDelivery>
+    public partial class PasscodeDeliveryJsonConverter : JsonConverter<PasscodeDelivery>
     {
+        partial void OnCreated();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasscodeDeliveryJsonConverter" /> class.
+        /// </summary>
+        public PasscodeDeliveryJsonConverter()
+        {
+            OnCreated();
+        }
+
         /// <summary>
         /// Deserializes json to <see cref="PasscodeDelivery" />
         /// </summary>
@@ -254,7 +264,6 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="passcodeDelivery"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Write(Utf8JsonWriter writer, PasscodeDelivery passcodeDelivery, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
@@ -269,11 +278,16 @@ namespace SignWell.Sdk.Models
         /// <param name="writer"></param>
         /// <param name="passcodeDelivery"></param>
         /// <param name="jsonSerializerOptions"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void WriteProperties(Utf8JsonWriter writer, PasscodeDelivery passcodeDelivery, JsonSerializerOptions jsonSerializerOptions)
         {
+            if (passcodeDelivery.EnabledOption.IsSet && passcodeDelivery.Enabled == null)
+                throw new JsonException("Cannot write null property PasscodeDelivery.Enabled to non-nullable JSON property 'enabled'.");
+
             if (passcodeDelivery.MethodsOption.IsSet && passcodeDelivery.Methods == null)
-                throw new ArgumentNullException(nameof(passcodeDelivery.Methods), "Property is required for class PasscodeDelivery.");
+                throw new JsonException("Cannot write null property PasscodeDelivery.Methods to non-nullable JSON property 'methods'.");
+
+            if (passcodeDelivery.ExpireAfterAccessOption.IsSet && passcodeDelivery.ExpireAfterAccess == null)
+                throw new JsonException("Cannot write null property PasscodeDelivery.ExpireAfterAccess to non-nullable JSON property 'expire_after_access'.");
 
             if (passcodeDelivery.EnabledOption.IsSet)
                 writer.WriteBoolean("enabled", passcodeDelivery.EnabledOption.Value!.Value);

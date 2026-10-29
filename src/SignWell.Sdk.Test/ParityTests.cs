@@ -26,6 +26,17 @@ public sealed class ParityTests
     }
 
     [Fact]
+    public void DefaultUserAgentTracksThePackageVersion()
+    {
+        var informational = typeof(SignWellClientOptions).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+        Assert.NotNull(informational);
+        Assert.Equal($"signwell-sdk-csharp/{informational!.Split('+')[0]}", SignWellClientOptions.UserAgent);
+        Assert.DoesNotContain("+", SignWellClientOptions.UserAgent);
+    }
+
+    [Fact]
     public void DependencyInjectionExposesFacadeAndAllRawResources()
     {
         var services = new ServiceCollection();
@@ -155,7 +166,7 @@ public sealed class ParityTests
         var handler = new CaptureHandler(content);
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://www.signwell.com") };
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Api-Key", "conflicting-default");
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SignWell .NET SDK/0.1.0-beta.1");
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", SignWellClientOptions.UserAgent);
         var transport = new ResponseModesClient(
             new SingleClientFactory(httpClient),
             new SignWellClientOptions { ApiKey = "real-key" },
@@ -165,7 +176,7 @@ public sealed class ParityTests
         Assert.False(content.WasSerialized);
         Assert.False(content.WasDisposed);
         Assert.Equal("real-key", handler.ApiKey);
-        Assert.Equal("SignWell .NET SDK/0.1.0-beta.1", handler.UserAgent);
+        Assert.Equal(SignWellClientOptions.UserAgent, handler.UserAgent);
         stream.Dispose();
         Assert.True(content.WasDisposed);
         Assert.True(content.Stream.WasDisposed);
